@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", system-ui, "Segoe UI", sans-serif;
+  --font-display: "Lexend", "Plus Jakarta Sans", system-ui, sans-serif;
+
+  --color-brand-50: #f2f0ff;
+  --color-brand-100: #e6e1ff;
+  --color-brand-200: #cfc4ff;
+  --color-brand-300: #ab97ff;
+  --color-brand-400: #8a6bff;
+  --color-brand-500: #6f47f5;
+  --color-brand-600: #5a32df;
+  --color-brand-700: #4924b3;
+  --color-brand-800: #3a1e8c;
+  --color-brand-900: #2a1666;
+
+  --color-mint-400: #34d399;
+  --color-mint-500: #10b981;
+}
+
+html {
+  color-scheme: light;
+}
+html.dark {
+  color-scheme: dark;
+}
+
+body {
+  font-family: var(--font-sans);
+  @apply bg-slate-100 text-slate-900 dark:bg-slate-950 dark:text-slate-100;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+}
+
+/* Slim, theme-aware scrollbars for tables and drawers */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-slate-300) transparent;
+}
+.dark * {
+  scrollbar-color: var(--color-slate-700) transparent;
+}
