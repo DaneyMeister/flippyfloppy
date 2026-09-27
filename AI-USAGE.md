@@ -103,7 +103,7 @@ real business data, and caught the problems listed in section 2.
   - A README with every environment variable, the setup SQL, a table of all 19 endpoints, a folder map and an honest known-issues list.
   - A draft of this file.
 - **What I kept / changed / why:** I changed the report's date range to end on 2026-09-23, because that was the reporting period. I kept the known issues because they are accurate. It found this AI-usage history by reading my old Claude Code session logs, so the entries above come from the real record instead of from memory.
-- **Commit:** _pending — the commit that adds `REPORT_9-27-26.md`, `AI-USAGE.md` and the new `README.md`_
+- **Commit:** [`3cdeaa7`](https://github.com/DaneyMeister/apsi/commit/3cdeaa771ba47663a414683b49520749d96855f1)9-27-26.md`, `AI-USAGE.md` and the new `README.md`_
 
 ### 9. Security checklist, sample data, demo mode, Docker and the docs folder
 - **Date / tool:** 2026-09-27, Claude Code
@@ -119,7 +119,7 @@ real business data, and caught the problems listed in section 2.
   - `server/Dockerfile`, `compose.yml` and a top-level `.env.example`.
   - `docs/01`–`03`, rebuilt from my Sep 1–3 proposal, wireframes and design-system pages.
 - **What I kept / changed / why:** _TODO: what I checked or changed myself._ The Docker files are untested because Docker isn't installed on my laptop, and the README says so.
-- **Commit:** _pending_
+- **Commit:** [`3cdeaa7`](https://github.com/DaneyMeister/apsi/commit/3cdeaa771ba47663a414683b49520749d96855f1)
 
 ### 10. Week 2 app changes (Sep 24–27)
 - **Date / tool:** 2026-09-24 to 2026-09-27, Claude Code
@@ -146,7 +146,7 @@ real business data, and caught the problems listed in section 2.
   - I made it remove the demo banner and the "any username" login (case 9).
   - I confirmed liquid assets needed no change.
   - I skipped retaking the screenshots for now.
-- **Commit:** _pending_
+- **Commit:** [`3cdeaa7`](https://github.com/DaneyMeister/apsi/commit/3cdeaa771ba47663a414683b49520749d96855f1)
 
 ---
 
@@ -180,37 +180,37 @@ real business data, and caught the problems listed in section 2.
 - **What it gave me:** The first README draft said `GET /api/groups/:id` returns a group "with its items and expenses".
 - **What was wrong:** `getGroupById` in `server/src/services/groupsService.ts` only collects `group_expenses` with `json_agg`; it does not return items. The documentation guide says the usage docs must match the code.
 - **What I did instead:** The SQL in the service was checked and the row corrected to "One group with its expenses".
-- **Commit:** _pending — same commit as the README update_
+- **Commit:** [`3cdeaa7`](https://github.com/DaneyMeister/apsi/commit/3cdeaa771ba47663a414683b49520749d96855f1)
 
 ### 6. It overwrote my professor's templates in `docs/`
 - **What it gave me:** While it was adding the missing files, I copied my professor's templates into `docs/`. It then wrote its own `01-proposal.md`, `02-mockup.md` and `03-design-system.md` straight over them, without checking what was already there.
 - **What was wrong:** Those templates were not committed yet, so they were lost. Its versions held my content but not necessarily the template's questions and headings. It noticed from the file timestamps, stopped, and told me.
 - **What I did instead:** _TODO: e.g. re-copied the templates from the class repo and had the content fitted to them._
-- **Commit:** _pending_
+- **Commit:** [`3cdeaa7`](https://github.com/DaneyMeister/apsi/commit/3cdeaa771ba47663a414683b49520749d96855f1)
 
 ### 7. Its first demo build shipped the fake data in the real app
 - **What it gave me:** The first version of demo mode checked a `DEMO_MODE` constant before loading the fake API.
 - **What was wrong:** Vite couldn't tell at build time that the branch was dead, so the fake API and its sample data were still bundled into the normal production build. They were never used there, but they shouldn't ship at all. Its own build check (`grep` for "Demo Buyer" in `dist/`) caught this.
 - **What was done instead:** The check was changed to `import.meta.env.VITE_DEMO_MODE === 'true'` written out in full, which Vite replaces at build time and removes. The normal build was then confirmed to contain no demo code.
-- **Commit:** _pending_
+- **Commit:** [`3cdeaa7`](https://github.com/DaneyMeister/apsi/commit/3cdeaa771ba47663a414683b49520749d96855f1)
 
 ### 8. Its first dummy dataset made my business look like it was losing money
 - **What it gave me:** 22 groups / 147 items / 35 expenses of invented data, where every part's assigned cost was close to its resale price. The Dashboard showed a **₱54,620 net loss**.
 - **What was wrong:** That isn't how flipping works. You buy a whole PC or bundle below market and part it out, so each part's share of the purchase is well under what it sells for. My real data made +₱27,110, so a demo showing a loss would misrepresent the app.
 - **What I did instead:** I told it the data looked like I was losing a lot of money. It repriced each part at 50–68% of its resale value, and the Dashboard now shows +₱41,630. Only the newest, still-selling batches and the defective/collection groups are in the red, which is realistic.
-- **Commit:** _pending_
+- **Commit:** [`3cdeaa7`](https://github.com/DaneyMeister/apsi/commit/3cdeaa771ba47663a414683b49520749d96855f1)
 
 ### 9. It made the demo accept any username and password
 - **What it gave me:** The server-less (GitHub Pages) build logged in with **any** username and password, showed a "Type any username and password to sign in" hint, and put a yellow "Demo mode" banner on every page.
 - **What was wrong:** My app has always had exactly one account, and I want the data treated as real, not labelled as a demo. When I saw the hint on my own login screen, I thought my real login had been changed. (It hadn't: my terminal was still in demo mode.)
 - **What I did instead:** I had the banner and the hint removed. The server-less build now checks one username plus a SHA-256 of the password, taken from GitHub Actions secrets, like the real app's single account.
-- **Commit:** _pending_
+- **Commit:** [`3cdeaa7`](https://github.com/DaneyMeister/apsi/commit/3cdeaa771ba47663a414683b49520749d96855f1)
 
 ### 10. Its own code moved purchase dates back a day every time I saved
 - **What it gave me:** In August it wrote the database pool with `pg`'s default settings, and the Edit Item / Edit Group forms filled their date boxes with `value.slice(0, 10)`.
 - **What was wrong:** `pg` turns a DATE column into a JavaScript Date at local midnight. In UTC+8 that is 16:00 UTC the day before, so `2026-09-12` reached the browser as `2026-09-11T16:00Z`. The form showed Sep 11, and saving (even without touching the date) stored Sep 11. Every save moved the date back another day. It also pre-filled "today" with the UTC date, which is yesterday before 8 AM in the Philippines. Its own test found it in week 2, but only after that test had shifted three of my records; it put them back.
 - **What was done instead:** `server/src/db/pool.ts` now returns DATE columns as plain `YYYY-MM-DD` text, and `client/src/utils/format.ts` has `toDateInput` / `todayDateInput`, which use the local calendar day. Saving each form three times now keeps every date the same.
-- **Commit:** _pending_
+- **Commit:** [`3cdeaa7`](https://github.com/DaneyMeister/apsi/commit/3cdeaa771ba47663a414683b49520749d96855f1)
 
 ---
 
