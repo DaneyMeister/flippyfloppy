@@ -3,15 +3,22 @@ import * as expensesService from '../services/expensesService';
 import { recalculateGroupBaseCost } from '../services/groupsService';
 import { pool } from '../db/pool';
 import { isSharedRunningCostGroup } from '../types';
+import { isUuid, validateAddExpenses } from '../validation';
 
 const router = Router();
 
+router.param('id', (_req, res, next, id) => {
+  if (!isUuid(id)) return res.status(404).json({ error: 'Expense not found' });
+  next();
+});
+
 router.post('/', async (req, res) => {
   try {
-    const { groupId, expenses } = req.body ?? {};
-    if (!groupId || !Array.isArray(expenses) || expenses.length === 0) {
-      return res.status(400).json({ error: 'groupId and a non-empty expenses array are required' });
-    }
+    const body = req.body ?? {};
+    const invalid = validateAddExpenses(body);
+    if (invalid) return res.status(400).json({ error: invalid });
+
+    const { groupId, expenses } = body;
     const inserted = await expensesService.addGroupExpenses(groupId, expenses);
 
     const { rows } = await pool.query('SELECT group_name FROM item_groups WHERE id = $1', [groupId]);

@@ -5,6 +5,7 @@ import type { PriceLookupResult } from '../types';
 import { formatDate, formatPhp } from '../utils/format';
 import { buttonClass, cardClass, inputClass } from '../components/FormField';
 import { SummaryCard } from '../components/SummaryCard';
+import { PriceIndexSkeleton } from '../components/Skeletons';
 
 export function PriceIndexPage() {
   const [query, setQuery] = useState('');
@@ -46,7 +47,9 @@ export function PriceIndexPage() {
 
       {error && <p className="text-red-600">{error}</p>}
 
-      {result && (
+      {loading && <PriceIndexSkeleton />}
+
+      {result && !loading && (
         <>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <SummaryCard title="Average Acquired Cost" value={formatPhp(result.averageAcquiredCost)} subtitle={`${result.matches.length} match(es)`} icon={Wallet} />
@@ -61,28 +64,46 @@ export function PriceIndexPage() {
                 <p className="text-sm text-slate-500 dark:text-slate-400">No sold items match this keyword yet.</p>
               </div>
             ) : (
-              <div className={`${cardClass} overflow-x-auto p-0`}>
-                <table className="w-full min-w-[560px] text-left text-sm">
-                  <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase text-slate-500 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400">
-                    <tr>
-                      <th className="px-4 py-3">Name</th>
-                      <th className="px-4 py-3">Buyer</th>
-                      <th className="px-4 py-3">Sale Date</th>
-                      <th className="px-4 py-3 text-right">Sold Price</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                    {result.history.map((entry, index) => (
-                      <tr key={index}>
-                        <td className="px-4 py-3 font-medium text-slate-900 dark:text-slate-50">{entry.name}</td>
-                        <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{entry.buyerName ?? '-'}</td>
-                        <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{formatDate(entry.saleDate)}</td>
-                        <td className="px-4 py-3 text-right font-semibold text-slate-900 dark:text-slate-50">{formatPhp(entry.soldPrice)}</td>
+              <>
+                {/* Mobile: card list (same pattern as Monthly Summary) */}
+                <div className="space-y-3 md:hidden">
+                  {result.history.map((entry, index) => (
+                    <div key={index} className={cardClass}>
+                      <div className="flex items-start justify-between gap-3">
+                        <p className="min-w-0 break-words font-semibold text-slate-900 dark:text-white">{entry.name}</p>
+                        <span className="shrink-0 font-semibold text-slate-900 dark:text-white">{formatPhp(entry.soldPrice)}</span>
+                      </div>
+                      <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                        Buyer: {entry.buyerName ?? '-'} &middot; Sold {formatDate(entry.saleDate)}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Desktop: table */}
+                <div className={`${cardClass} hidden overflow-x-auto p-0 md:block`}>
+                  <table className="w-full min-w-[560px] text-left text-sm">
+                    <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase text-slate-500 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400">
+                      <tr>
+                        <th className="px-4 py-3">Name</th>
+                        <th className="px-4 py-3">Buyer</th>
+                        <th className="px-4 py-3">Sale Date</th>
+                        <th className="px-4 py-3 text-right">Sold Price</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                      {result.history.map((entry, index) => (
+                        <tr key={index}>
+                          <td className="px-4 py-3 font-medium text-slate-900 dark:text-slate-50">{entry.name}</td>
+                          <td className="whitespace-nowrap px-4 py-3 text-slate-600 dark:text-slate-300">{entry.buyerName ?? '-'}</td>
+                          <td className="whitespace-nowrap px-4 py-3 text-slate-600 dark:text-slate-300">{formatDate(entry.saleDate)}</td>
+                          <td className="px-4 py-3 text-right font-semibold text-slate-900 dark:text-slate-50">{formatPhp(entry.soldPrice)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
             )}
           </div>
         </>

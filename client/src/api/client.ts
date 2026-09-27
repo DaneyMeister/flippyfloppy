@@ -1,6 +1,5 @@
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:4000';
 const TOKEN_KEY = 'flippyfloppy_token';
-
 export function getToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
 }
@@ -22,6 +21,18 @@ export class ApiError extends Error {
 }
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+  // Written out in full (not DEMO_MODE) so Vite can drop this branch, and
+  // the demo data with it, from the normal build.
+  if (import.meta.env.VITE_DEMO_MODE === 'true') {
+    const { mockRequest, MockError } = await import('./mockApi');
+    try {
+      return await mockRequest<T>(path, options);
+    } catch (err) {
+      if (err instanceof MockError) throw new ApiError(err.status, err.message);
+      throw err;
+    }
+  }
+
   const token = getToken();
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -31,9 +42,11 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
   const res = await fetch(`${API_URL}${path}`, { ...options, headers });
 
-  if (res.status === 401) {
+  // An expired/invalid session sends you back to login. A 401 from the login
+  // request itself just means a wrong password, so let it show as an error.
+  if (res.status === 401 && path !== '/api/auth/login') {
     clearToken();
-    window.location.href = '/login';
+    window.location.href = `${import.meta.env.BASE_URL}login`;
     throw new ApiError(401, 'Unauthorized');
   }
 

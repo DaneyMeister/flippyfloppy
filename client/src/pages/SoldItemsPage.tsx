@@ -4,6 +4,7 @@ import { api, ApiError } from '../api/client';
 import { formatDate, formatPhp } from '../utils/format';
 import { cardClass, secondaryButtonClass } from '../components/FormField';
 import type { InventoryItemRow } from '../types';
+import { SoldItemsSkeleton } from '../components/Skeletons';
 
 interface SaleGroup {
   key: string;
@@ -13,7 +14,7 @@ interface SaleGroup {
 }
 
 export function SoldItemsPage() {
-  const { items, refresh } = useInventory();
+  const { items, loading, refresh } = useInventory();
   const [busyKey, setBusyKey] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -48,6 +49,7 @@ export function SoldItemsPage() {
     }
   }
 
+  if (loading && items.length === 0) return <SoldItemsSkeleton />;
   if (error) return <p className="text-red-600">{error}</p>;
 
   return (

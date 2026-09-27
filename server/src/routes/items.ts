@@ -1,25 +1,51 @@
 import { Router } from 'express';
 import * as itemsService from '../services/itemsService';
+import {
+  isUuid,
+  validateBatch,
+  validateCreateItem,
+  validateItemIds,
+  validateItemPatch,
+  validateQuickAdd,
+  validateSellBuild,
+} from '../validation';
 
 const router = Router();
 
+// A malformed id can't match any item; answer 404 before it reaches Postgres.
+router.param('id', (_req, res, next, id) => {
+  if (!isUuid(id)) return res.status(404).json({ error: 'Item not found' });
+  next();
+});
+
 router.get('/', async (_req, res) => {
-  const items = await itemsService.getAllItemsWithGroups();
-  res.json(items);
+  try {
+    const items = await itemsService.getAllItemsWithGroups();
+    res.json(items);
+  } catch (err) {
+    console.error('List items failed:', err);
+    res.status(500).json({ error: 'Failed to load items' });
+  }
 });
 
 router.get('/:id', async (req, res) => {
-  const item = await itemsService.getItemById(req.params.id);
-  if (!item) return res.status(404).json({ error: 'Item not found' });
-  res.json(item);
+  try {
+    const item = await itemsService.getItemById(req.params.id);
+    if (!item) return res.status(404).json({ error: 'Item not found' });
+    res.json(item);
+  } catch (err) {
+    console.error('Get item failed:', err);
+    res.status(500).json({ error: 'Failed to load item' });
+  }
 });
 
 router.post('/', async (req, res) => {
   try {
-    const { groupId, name, category, status, assignedCost, notes } = req.body ?? {};
-    if (!groupId || !name || !category || !status) {
-      return res.status(400).json({ error: 'groupId, name, category, and status are required' });
-    }
+    const body = req.body ?? {};
+    const invalid = validateCreateItem(body);
+    if (invalid) return res.status(400).json({ error: invalid });
+
+    const { groupId, name, category, status, assignedCost, notes } = body;
     const item = await itemsService.createItemInGroup({
       groupId,
       name,
@@ -37,10 +63,11 @@ router.post('/', async (req, res) => {
 
 router.post('/batch', async (req, res) => {
   try {
-    const { groupName, groupType, purchaseDate, baseCost, boughtFrom, additionalExpenses, components } = req.body ?? {};
-    if (!groupName || !groupType || !purchaseDate || !Array.isArray(components) || components.length === 0) {
-      return res.status(400).json({ error: 'groupName, groupType, purchaseDate, and at least one component are required' });
-    }
+    const body = req.body ?? {};
+    const invalid = validateBatch(body);
+    if (invalid) return res.status(400).json({ error: invalid });
+
+    const { groupName, groupType, purchaseDate, baseCost, boughtFrom, additionalExpenses, components } = body;
     const result = await itemsService.createBatch({
       groupName,
       groupType,
@@ -59,13 +86,14 @@ router.post('/batch', async (req, res) => {
 
 router.post('/quick-add', async (req, res) => {
   try {
+    const body = req.body ?? {};
+    const invalid = validateQuickAdd(body);
+    if (invalid) return res.status(400).json({ error: invalid });
+
     const {
       name, category, status, purchaseDate, boughtFrom, baseCost,
       targetGroupName, notes, listingUrl, additionalExpenses,
-    } = req.body ?? {};
-    if (!name || !category || !status || !purchaseDate || !targetGroupName) {
-      return res.status(400).json({ error: 'name, category, status, purchaseDate, and targetGroupName are required' });
-    }
+    } = body;
     const result = await itemsService.quickAddIndividualItem({
       name,
       category,
@@ -87,10 +115,11 @@ router.post('/quick-add', async (req, res) => {
 
 router.post('/sell-build', async (req, res) => {
   try {
-    const { itemSoldPrices, buyerName, saleDate, listingUrl } = req.body ?? {};
-    if (!itemSoldPrices || Object.keys(itemSoldPrices).length === 0 || !buyerName || !saleDate) {
-      return res.status(400).json({ error: 'itemSoldPrices, buyerName, and saleDate are required' });
-    }
+    const body = req.body ?? {};
+    const invalid = validateSellBuild(body);
+    if (invalid) return res.status(400).json({ error: invalid });
+
+    const { itemSoldPrices, buyerName, saleDate, listingUrl } = body;
     await itemsService.sellItemsAsBuild({ itemSoldPrices, buyerName, saleDate, listingUrl });
     res.status(204).end();
   } catch (err) {
@@ -101,11 +130,11 @@ router.post('/sell-build', async (req, res) => {
 
 router.post('/return-sale', async (req, res) => {
   try {
-    const { itemIds } = req.body ?? {};
-    if (!Array.isArray(itemIds) || itemIds.length === 0) {
-      return res.status(400).json({ error: 'itemIds must be a non-empty array' });
-    }
-    await itemsService.returnSale(itemIds);
+    const body = req.body ?? {};
+    const invalid = validateItemIds(body);
+    if (invalid) return res.status(400).json({ error: invalid });
+
+    await itemsService.returnSale(body.itemIds);
     res.status(204).end();
   } catch (err) {
     console.error('Return sale failed:', err);
@@ -115,7 +144,11 @@ router.post('/return-sale', async (req, res) => {
 
 router.patch('/:id', async (req, res) => {
   try {
-    const updated = await itemsService.updateItem(req.params.id, req.body ?? {});
+    const body = req.body ?? {};
+    const invalid = validateItemPatch(body);
+    if (invalid) return res.status(400).json({ error: invalid });
+
+    const updated = await itemsService.updateItem(req.params.id, body);
     if (!updated) return res.status(404).json({ error: 'Item not found' });
     res.json(updated);
   } catch (err) {

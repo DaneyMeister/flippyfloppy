@@ -7,6 +7,7 @@ import { GroupDetailModal } from '../components/GroupDetailModal';
 import { formatPhp, formatDate } from '../utils/format';
 import { cardClass, inputClass } from '../components/FormField';
 import { groupBucketPriority } from '../utils/sort';
+import { DashboardSkeleton } from '../components/Skeletons';
 
 const ALL_CATEGORY = 'All Category';
 
@@ -154,23 +155,6 @@ export function DashboardPage() {
           }}
         />
       )}
-    </div>
-  );
-}
-
-function DashboardSkeleton() {
-  return (
-    <div className="space-y-8 animate-pulse">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="h-28 rounded-2xl bg-slate-200/70 dark:bg-slate-800/70" />
-        ))}
-      </div>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="h-40 rounded-2xl bg-slate-200/70 dark:bg-slate-800/70" />
-        ))}
-      </div>
     </div>
   );
 }

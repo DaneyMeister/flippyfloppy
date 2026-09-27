@@ -40,7 +40,7 @@ export function LoginPage() {
           className="mb-8 flex flex-col items-center text-center"
           title="Flippy: buy, flip, sell. Floppy: PC hardware, and the thing whose one job was holding onto data that mattered."
         >
-          <img src="/logo.png" alt="" className="mb-4 h-16 w-16 rounded-2xl shadow-lg shadow-brand-500/40" />
+          <img src={`${import.meta.env.BASE_URL}logo.png`} alt="" className="mb-4 h-16 w-16 rounded-2xl shadow-lg shadow-brand-500/40" />
           <h1 className="font-display text-2xl font-extrabold text-white">FlippyFloppy</h1>
           <p className="mt-1 text-sm text-slate-400">PC Flipping Inventory &amp; Profit Tracker</p>
         </div>

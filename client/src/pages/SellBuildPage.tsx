@@ -3,16 +3,17 @@ import { Search, X } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
 import { api, ApiError } from '../api/client';
 import type { InventoryItemRow } from '../types';
-import { formatPhp, parseMoney } from '../utils/format';
+import { formatPhp, parseMoney, todayDateInput } from '../utils/format';
 import { buttonClass, cardClass, inputClass } from '../components/FormField';
+import { SellBuildSkeleton } from '../components/Skeletons';
 
 export function SellBuildPage() {
-  const { items, groupNameForItem, refresh } = useInventory();
+  const { items, loading, groupNameForItem, refresh } = useInventory();
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<InventoryItemRow[]>([]);
   const [prices, setPrices] = useState<Record<string, string>>({});
   const [buyerName, setBuyerName] = useState('');
-  const [saleDate, setSaleDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [saleDate, setSaleDate] = useState(todayDateInput);
   const [listingUrl, setListingUrl] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -68,13 +69,15 @@ export function SellBuildPage() {
       setPrices({});
       setBuyerName('');
       setListingUrl('');
-      setSaleDate(new Date().toISOString().slice(0, 10));
+      setSaleDate(todayDateInput());
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Failed to sell build');
     } finally {
       setSaving(false);
     }
   }
+
+  if (loading && items.length === 0) return <SellBuildSkeleton />;
 
   return (
     <div className="space-y-6">

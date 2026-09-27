@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Package, Zap } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
 import { api, ApiError } from '../api/client';
@@ -12,7 +12,9 @@ import {
   type ItemStatus,
 } from '../types';
 import { buttonClass, cardClass, inputClass, secondaryButtonClass } from '../components/FormField';
-import { parseMoney } from '../utils/format';
+import { parseMoney, todayDateInput } from '../utils/format';
+import { nextGroupName } from '../utils/groupName';
+import { InputSkeleton } from '../components/Skeletons';
 
 interface ComponentDraft {
   key: number;
@@ -73,9 +75,18 @@ export function AcquisitionPage() {
 }
 
 function BatchForm({ onSaved }: { onSaved: () => Promise<void> }) {
-  const [groupName, setGroupName] = useState('');
+  const { groups, loading } = useInventory();
+  // Until groups load, the next number isn't known yet (it would say "PC Set 1").
+  const groupsLoading = loading && groups.length === 0;
   const [groupType, setGroupType] = useState<GroupType>(GROUP_TYPES[0]);
-  const [purchaseDate, setPurchaseDate] = useState(() => new Date().toISOString().slice(0, 10));
+  // null = use the suggested "<type> <next number>"; a string = the user typed their own name.
+  const [customName, setCustomName] = useState<string | null>(null);
+  const suggestedName = useMemo(
+    () => nextGroupName(groupType, groups.map((g) => g.group_name)),
+    [groupType, groups]
+  );
+  const groupName = customName ?? suggestedName;
+  const [purchaseDate, setPurchaseDate] = useState(todayDateInput);
   const [baseCost, setBaseCost] = useState('');
   const [boughtFrom, setBoughtFrom] = useState('');
   const [expenses, setExpenses] = useState<ExpenseDraft[]>([]);
@@ -119,8 +130,8 @@ function BatchForm({ onSaved }: { onSaved: () => Promise<void> }) {
         })),
       });
       await onSaved();
-      setMessage('Batch purchase saved and inventory items added.');
-      setGroupName('');
+      setMessage(`${groupName.trim()} saved and its inventory items added.`);
+      setCustomName(null);
       setBaseCost('');
       setBoughtFrom('');
       setExpenses([]);
@@ -142,7 +153,19 @@ function BatchForm({ onSaved }: { onSaved: () => Promise<void> }) {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <label className="block">
             <span className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Group Name</span>
-            <input className={inputClass} value={groupName} onChange={(e) => setGroupName(e.target.value)} />
+            {groupsLoading ? (
+              <InputSkeleton />
+            ) : (
+              <input
+                className={inputClass}
+                value={groupName}
+                // Clearing the box hands it back to the automatic suggestion.
+                onChange={(e) => setCustomName(e.target.value === '' ? null : e.target.value)}
+              />
+            )}
+            <span className="mt-1 block text-xs text-slate-500 dark:text-slate-400">
+              {customName === null ? `Next number for ${groupType}. Type to use your own name.` : 'Clear the box to go back to the suggested name.'}
+            </span>
           </label>
           <label className="block">
             <span className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Group Type</span>
@@ -281,7 +304,7 @@ function QuickAddForm({ onSaved }: { onSaved: () => Promise<void> }) {
   const [category, setCategory] = useState(INVENTORY_CATEGORIES[0]);
   const [status, setStatus] = useState<ItemStatus>(ITEM_STATUSES[0]);
   const [baseCost, setBaseCost] = useState('');
-  const [purchaseDate, setPurchaseDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [purchaseDate, setPurchaseDate] = useState(todayDateInput);
   const [boughtFrom, setBoughtFrom] = useState('');
   const [listingUrl, setListingUrl] = useState('');
   const [notes, setNotes] = useState('');

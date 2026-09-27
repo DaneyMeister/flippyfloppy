@@ -12,7 +12,7 @@ import {
   type InventoryItemRow,
   type ItemStatus,
 } from '../types';
-import { formatPhp, parseMoney } from '../utils/format';
+import { formatPhp, parseMoney, toDateInput } from '../utils/format';
 import { buttonClass, inputClass, secondaryButtonClass } from './FormField';
 
 export function EditGroupModal({ groupId, onClose }: { groupId: string; onClose: () => void }) {
@@ -22,7 +22,7 @@ export function EditGroupModal({ groupId, onClose }: { groupId: string; onClose:
 
   const [name, setName] = useState(group?.group_name ?? '');
   const [groupType, setGroupType] = useState<GroupType>(group?.group_type ?? GROUP_TYPES[0]);
-  const [purchaseDate, setPurchaseDate] = useState(group?.purchase_date?.slice(0, 10) ?? '');
+  const [purchaseDate, setPurchaseDate] = useState(toDateInput(group?.purchase_date));
   const [boughtFrom, setBoughtFrom] = useState(group?.bought_from ?? '');
   const [baseCost, setBaseCost] = useState(String(group?.base_cost ?? '0'));
 

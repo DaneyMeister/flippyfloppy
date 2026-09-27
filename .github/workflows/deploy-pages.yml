@@ -1,0 +1,73 @@
+# Publishes the client as a server-less demo on GitHub Pages.
+# The demo build (VITE_DEMO_MODE=true) answers every API call in the browser
+# from client/src/api/seed.json, so no database, server or secret is needed.
+#
+# One-time setup:
+#   1. Settings -> Pages -> Source: "GitHub Actions".
+#   2. Settings -> Secrets and variables -> Actions -> add DEMO_USERNAME and
+#      DEMO_PASSWORD_SHA256 (see client/.env.example for how to make the hash).
+# Actions are pinned to full commit SHAs (tag in the comment) so a moved tag
+# can't change what runs here.
+
+name: Deploy demo to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: client
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+
+      - run: npm ci
+
+      - name: Build demo
+        run: npm run build
+        env:
+          VITE_DEMO_MODE: 'true'
+          VITE_BASE: /${{ github.event.repository.name }}/
+          # The one login account, from repository Actions secrets (never in the repo).
+          # Only the SHA-256 of the password reaches the built site.
+          VITE_DEMO_USERNAME: ${{ secrets.DEMO_USERNAME }}
+          VITE_DEMO_PASSWORD_SHA256: ${{ secrets.DEMO_PASSWORD_SHA256 }}
+
+      # GitHub Pages has no SPA fallback; serving index.html as the 404 page
+      # lets deep links like /inventory load the app.
+      - run: cp dist/index.html dist/404.html
+
+      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: client/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

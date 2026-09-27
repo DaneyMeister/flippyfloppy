@@ -33,7 +33,7 @@ const NAME_ORIGIN =
 function Logo() {
   return (
     <div className="flex items-center gap-2.5 px-1" title={NAME_ORIGIN}>
-      <img src="/logo.png" alt="" className="h-9 w-9 shrink-0 rounded-xl shadow-md shadow-brand-500/30" />
+      <img src={`${import.meta.env.BASE_URL}logo.png`} alt="" className="h-9 w-9 shrink-0 rounded-xl shadow-md shadow-brand-500/30" />
       <div className="leading-tight">
         <p className="font-display text-base font-extrabold tracking-tight text-slate-900 dark:text-white">FlippyFloppy</p>
         <p className="text-[11px] font-medium text-slate-400 dark:text-slate-500">PC Flipping Tracker</p>

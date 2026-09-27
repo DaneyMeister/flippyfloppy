@@ -5,6 +5,7 @@ import type { MonthlyReport } from '../types';
 import { formatDate, formatPhp } from '../utils/format';
 import { SummaryCard } from '../components/SummaryCard';
 import { cardClass, inputClass } from '../components/FormField';
+import { MonthlySummarySkeleton } from '../components/Skeletons';
 
 function currentMonthValue() {
   const now = new Date();
@@ -35,7 +36,7 @@ export function MonthlySummaryPage() {
         <input type="month" className={inputClass} value={monthValue} onChange={(e) => setMonthValue(e.target.value)} />
       </label>
 
-      {loading && <p className="text-slate-500">Loading…</p>}
+      {loading && <MonthlySummarySkeleton />}
       {error && <p className="text-red-600">{error}</p>}
 
       {report && !loading && (

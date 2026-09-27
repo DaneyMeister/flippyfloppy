@@ -8,6 +8,7 @@ import { api, ApiError } from '../api/client';
 import { ITEM_STATUSES, type InventoryItemRow, type ItemStatus } from '../types';
 import { cardClass, dangerTextButtonClass, inputClass } from '../components/FormField';
 import { compareByName, compareByPriority, compareBySaleDateDesc } from '../utils/sort';
+import { InventorySkeleton } from '../components/Skeletons';
 
 export function InventoryPage() {
   const { items, groups, loading, error, refresh, groupById, groupNameForItem } = useInventory();
@@ -227,17 +228,6 @@ export function InventoryPage() {
       )}
 
       {editingItem && <EditItemModal item={editingItem} onClose={() => setEditingItem(null)} />}
-    </div>
-  );
-}
-
-function InventorySkeleton() {
-  return (
-    <div className="animate-pulse space-y-3">
-      <div className="h-10 w-full max-w-xs rounded-xl bg-slate-200/70 dark:bg-slate-800/70" />
-      {Array.from({ length: 5 }).map((_, i) => (
-        <div key={i} className="h-16 rounded-2xl bg-slate-200/70 dark:bg-slate-800/70" />
-      ))}
     </div>
   );
 }

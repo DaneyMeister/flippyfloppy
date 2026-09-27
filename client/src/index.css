@@ -45,3 +45,35 @@ h1, h2, h3, h4 {
 .dark * {
   scrollbar-color: var(--color-slate-700) transparent;
 }
+
+/* Skeleton loading: a soft base shape with a light sweeping across it. */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  background-color: rgb(226 232 240 / 0.75); /* slate-200 */
+}
+.dark .skeleton {
+  background-color: rgb(30 41 59 / 0.8); /* slate-800 */
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.6), transparent);
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+.dark .skeleton::after {
+  background: linear-gradient(90deg, transparent, rgb(148 163 184 / 0.14), transparent);
+}
+@keyframes skeleton-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after {
+    animation: none;
+  }
+}

@@ -3,7 +3,7 @@ import { X, Trash2, Save } from 'lucide-react';
 import { useInventory } from '../context/InventoryContext';
 import { api, ApiError } from '../api/client';
 import { BOUGHT_COMPONENTS_GROUP_NAME, INVENTORY_CATEGORIES, ITEM_STATUSES, type InventoryItemRow, type ItemStatus } from '../types';
-import { formatPhp, parseMoney } from '../utils/format';
+import { formatPhp, parseMoney, toDateInput, todayDateInput } from '../utils/format';
 import { buttonClass, inputClass } from './FormField';
 
 export function EditItemModal({ item, onClose }: { item: InventoryItemRow; onClose: () => void }) {
@@ -16,11 +16,11 @@ export function EditItemModal({ item, onClose }: { item: InventoryItemRow; onClo
   const [status, setStatus] = useState<ItemStatus>(item.status);
   const [assignedCost, setAssignedCost] = useState(String(item.assigned_cost));
   const [notes, setNotes] = useState(item.notes ?? '');
-  const [purchaseDate, setPurchaseDate] = useState(item.purchase_date?.slice(0, 10) ?? '');
+  const [purchaseDate, setPurchaseDate] = useState(toDateInput(item.purchase_date));
   const [boughtFrom, setBoughtFrom] = useState(item.bought_from ?? '');
   const [soldPrice, setSoldPrice] = useState(String(item.sold_price ?? item.assigned_cost));
   const [buyerName, setBuyerName] = useState(item.buyer_name ?? '');
-  const [saleDate, setSaleDate] = useState(item.sale_date?.slice(0, 10) ?? new Date().toISOString().slice(0, 10));
+  const [saleDate, setSaleDate] = useState(toDateInput(item.sale_date) || todayDateInput());
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);

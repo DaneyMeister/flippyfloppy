@@ -15,7 +15,7 @@ import { PriceIndexPage } from './pages/PriceIndexPage';
 export default function App() {
   return (
     <ThemeProvider>
-      <BrowserRouter>
+      <BrowserRouter basename={import.meta.env.BASE_URL}>
         <AuthProvider>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
