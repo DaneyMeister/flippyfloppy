@@ -103,7 +103,7 @@ real business data, and caught the problems listed in section 2.
   - A README with every environment variable, the setup SQL, a table of all 19 endpoints, a folder map and an honest known-issues list.
   - A draft of this file.
 - **What I kept / changed / why:** I changed the report's date range to end on 2026-09-23, because that was the reporting period. I kept the known issues because they are accurate. It found this AI-usage history by reading my old Claude Code session logs, so the entries above come from the real record instead of from memory.
-- **Commit:** [`3cdeaa7`](https://github.com/DaneyMeister/apsi/commit/3cdeaa771ba47663a414683b49520749d96855f1)9-27-26.md`, `AI-USAGE.md` and the new `README.md`_
+- **Commit:** [`3cdeaa7`](https://github.com/DaneyMeister/apsi/commit/3cdeaa771ba47663a414683b49520749d96855f1)
 
 ### 9. Security checklist, sample data, demo mode, Docker and the docs folder
 - **Date / tool:** 2026-09-27, Claude Code
@@ -147,6 +147,34 @@ real business data, and caught the problems listed in section 2.
   - I confirmed liquid assets needed no change.
   - I skipped retaking the screenshots for now.
 - **Commit:** [`3cdeaa7`](https://github.com/DaneyMeister/apsi/commit/3cdeaa771ba47663a414683b49520749d96855f1)
+
+### 11. Week 3 dashboard redesign and UI polish
+- **Date / tool:** 2026-10-03, Claude Code (plus the Impeccable design plugin for one UI critique)
+- **What I asked:** A run of requests, each from a screenshot of my own screen:
+  - make "Net Profit / Loss" the primary Dashboard card, taking inspiration from a reference image without copying it, and put a line chart of profit over time beside it
+  - give the numbers more emphasis, remove the dashboard icons, and later reduce bold text across the whole site
+  - redesign Monthly Summary to match the Dashboard, with a tighter phone layout and the chart at the bottom
+  - replace the browser's plain delete prompt with an in-app window whose buttons say "Keep the Item" and "Delete Item"
+  - restyle every dropdown and the calendar to match the site, round off sharp corners, and add simple opening and sliding animations
+- **What it gave back:** `StatCards.tsx`, `DashboardStats.tsx`, `ProfitChart.tsx` with `utils/chartPoints.ts` and `utils/profitTimeline.ts`, a profit timeline added to `analyticsService.ts`, `ConfirmDialog.tsx`, `DatePicker.tsx`, `useSlidingIndicator.ts`, and animation keyframes in `index.css`.
+- **What I kept / changed / why:**
+  - I asked what "Cost recovered" actually calculates before keeping it (revenue ÷ expenses), so I wouldn't show a number I couldn't explain.
+  - I had it remove the green glow behind the profit card and the green box around "+16.3% return on cost", because they looked busy, and made the chart line curved instead of sharp.
+  - I asked whether delete should be click or press-and-hold, kept a single click with a confirmation window, then had the red button made more subtle and the window given an outline so it stands out.
+- **Commit:** [`2101093`](https://github.com/DaneyMeister/apsi/commit/210109391179b1724363fa8c73011a55179fe0fd)
+
+### 12. Week 3 phone/tablet fixes, account menu and live search
+- **Date / tool:** 2026-10-04, Claude Code
+- **What I asked:** Again from screenshots:
+  - less dead space on Sold Items, with the Return button moved to the top-right corner, and the same confirmation window as Delete
+  - less empty space in the phone Net Profit card, a bigger profit number that shrinks for 6- and 7-digit amounts, and the "Base + fees" style labels kept on one line on the right
+  - a smaller profit number and stacked breakdown on tablets so the chart gets more room
+  - move Log out and the light/dark toggle into the "A" account icon
+  - Price Index results that appear while typing
+  - Inventory on tablets as cards like the phone view, two per row
+- **What it gave back:** A compact one-row-per-sale list in `SoldItemsPage.tsx`, digit-based font sizes in `StatCards.tsx`, an `AccountMenu` in `Layout.tsx`, a debounced search in `PriceIndexPage.tsx` that ignores slow, out-of-date responses, and a two-column card grid in `InventoryPage.tsx`, with the loading skeletons in `Skeletons.tsx` changed to match each one.
+- **What I kept / changed / why:** I checked each change in the browser at phone and tablet widths and sent new screenshots when something still looked wrong: the profit number needed to be smaller again on tablets, and the Inventory change didn't show up at all at first (section 2, case 11).
+- **Commit:** [`2101093`](https://github.com/DaneyMeister/apsi/commit/210109391179b1724363fa8c73011a55179fe0fd)
 
 ---
 
@@ -211,6 +239,12 @@ real business data, and caught the problems listed in section 2.
 - **What was wrong:** `pg` turns a DATE column into a JavaScript Date at local midnight. In UTC+8 that is 16:00 UTC the day before, so `2026-09-12` reached the browser as `2026-09-11T16:00Z`. The form showed Sep 11, and saving (even without touching the date) stored Sep 11. Every save moved the date back another day. It also pre-filled "today" with the UTC date, which is yesterday before 8 AM in the Philippines. Its own test found it in week 2, but only after that test had shifted three of my records; it put them back.
 - **What was done instead:** `server/src/db/pool.ts` now returns DATE columns as plain `YYYY-MM-DD` text, and `client/src/utils/format.ts` has `toDateInput` / `todayDateInput`, which use the local calendar day. Saving each form three times now keeps every date the same.
 - **Commit:** [`3cdeaa7`](https://github.com/DaneyMeister/apsi/commit/3cdeaa771ba47663a414683b49520749d96855f1)
+
+### 11. Its tablet layout for Inventory didn't change anything on my screen
+- **What it gave me:** I asked for the Inventory table to become two columns of cards on tablet. It switched cards to the table at 1024 px wide (Tailwind's `lg`) and said the change was done.
+- **What was wrong:** My window was wider than 1024 px, so I still saw the same cramped table. The table has a minimum width of 820 px, and with the 256 px sidebar it needs about 1,120 px, so it was always squeezed below 1280 px. It picked the breakpoint without checking how much room the table actually needs.
+- **What I did instead:** I sent a second screenshot saying it didn't change. The switch was moved to 1280 px (`xl`), so cards show up to laptop width and the table only where it fits. I checked it again in the browser.
+- **Commit:** [`2101093`](https://github.com/DaneyMeister/apsi/commit/210109391179b1724363fa8c73011a55179fe0fd)
 
 ---
 
