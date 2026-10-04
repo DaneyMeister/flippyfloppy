@@ -5,6 +5,7 @@ import { api, ApiError } from '../api/client';
 import { BOUGHT_COMPONENTS_GROUP_NAME, INVENTORY_CATEGORIES, ITEM_STATUSES, type InventoryItemRow, type ItemStatus } from '../types';
 import { formatPhp, parseMoney, toDateInput, todayDateInput } from '../utils/format';
 import { buttonClass, inputClass } from './FormField';
+import { DatePicker } from './DatePicker';
 
 export function EditItemModal({ item, onClose }: { item: InventoryItemRow; onClose: () => void }) {
   const { groups, groupById, refresh } = useInventory();
@@ -84,8 +85,8 @@ export function EditItemModal({ item, onClose }: { item: InventoryItemRow; onClo
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4">
-      <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl dark:bg-slate-900 sm:max-w-xl sm:rounded-3xl">
+      <div className="absolute inset-0 animate-fade-in bg-slate-900/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative flex max-h-[92vh] w-full animate-sheet-up flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl sm:animate-modal-in dark:bg-slate-900 sm:max-w-xl sm:rounded-3xl">
         <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-6 py-5 dark:border-slate-800">
           <h2 className="font-display text-xl font-extrabold text-slate-900 dark:text-white">Edit Inventory Item</h2>
           <button onClick={onClose} className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="Close">
@@ -156,7 +157,7 @@ export function EditItemModal({ item, onClose }: { item: InventoryItemRow; onClo
               <div className="grid grid-cols-2 gap-4">
                 <label className="block">
                   <span className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">Purchase Date</span>
-                  <input type="date" className={inputClass} value={purchaseDate} onChange={(e) => setPurchaseDate(e.target.value)} />
+                  <DatePicker value={purchaseDate} onChange={setPurchaseDate} clearable />
                 </label>
                 <label className="block">
                   <span className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">Bought From</span>
@@ -203,7 +204,7 @@ export function EditItemModal({ item, onClose }: { item: InventoryItemRow; onClo
               </label>
               <label className="block">
                 <span className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">Sale Date</span>
-                <input type="date" className={inputClass} value={saleDate} onChange={(e) => setSaleDate(e.target.value)} />
+                <DatePicker value={saleDate} onChange={setSaleDate} />
               </label>
             </div>
           )}

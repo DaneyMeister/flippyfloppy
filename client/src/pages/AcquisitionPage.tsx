@@ -15,6 +15,8 @@ import { buttonClass, cardClass, inputClass, secondaryButtonClass } from '../com
 import { parseMoney, todayDateInput } from '../utils/format';
 import { nextGroupName } from '../utils/groupName';
 import { InputSkeleton } from '../components/Skeletons';
+import { DatePicker } from '../components/DatePicker';
+import { useSlidingIndicator } from '../components/useSlidingIndicator';
 
 interface ComponentDraft {
   key: number;
@@ -42,34 +44,48 @@ function newExpense(): ExpenseDraft {
   return { key: nextKey(), category: EXPENSE_CATEGORIES[0], amount: '' };
 }
 
+const MODES = [
+  { key: 'batch', label: 'Batch Purchase', icon: Package },
+  { key: 'quick', label: 'Quick Add', icon: Zap },
+] as const;
+
 export function AcquisitionPage() {
   const { refresh } = useInventory();
   const [mode, setMode] = useState<'batch' | 'quick'>('batch');
+  // Only slide the form in after the user switches, not on first load.
+  const [switched, setSwitched] = useState(false);
+  const { containerRef, style, transitionClass } = useSlidingIndicator<HTMLDivElement>(mode, '[aria-pressed="true"]');
 
   return (
     <div className="space-y-6">
-      <div className="inline-flex rounded-xl border border-slate-200 bg-white p-1 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <button
-          onClick={() => setMode('batch')}
-          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${
-            mode === 'batch' ? 'bg-brand-500 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
-          }`}
-        >
-          <Package size={16} />
-          Batch Purchase
-        </button>
-        <button
-          onClick={() => setMode('quick')}
-          className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${
-            mode === 'quick' ? 'bg-brand-500 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
-          }`}
-        >
-          <Zap size={16} />
-          Quick Add
-        </button>
+      <div
+        ref={containerRef}
+        className="relative inline-flex rounded-xl border border-slate-200 bg-white p-1 shadow-sm dark:border-slate-800 dark:bg-slate-900"
+      >
+        {/* One purple pill that slides to the selected option. */}
+        <span aria-hidden="true" className={`absolute rounded-lg bg-brand-500 shadow-sm ${transitionClass}`} style={style} />
+        {MODES.map(({ key, label, icon: Icon }) => (
+          <button
+            key={key}
+            onClick={() => {
+              if (key !== mode) setSwitched(true);
+              setMode(key);
+            }}
+            aria-pressed={mode === key}
+            className={`relative flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors duration-300 ${
+              mode === key ? 'text-white' : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
+            }`}
+          >
+            <Icon size={16} />
+            {label}
+          </button>
+        ))}
       </div>
 
-      {mode === 'batch' ? <BatchForm onSaved={refresh} /> : <QuickAddForm onSaved={refresh} />}
+      {/* Slides in from the side of the option just picked. */}
+      <div key={mode} className={switched ? (mode === 'quick' ? 'animate-slide-from-right' : 'animate-slide-from-left') : undefined}>
+        {mode === 'batch' ? <BatchForm onSaved={refresh} /> : <QuickAddForm onSaved={refresh} />}
+      </div>
     </div>
   );
 }
@@ -177,7 +193,7 @@ function BatchForm({ onSaved }: { onSaved: () => Promise<void> }) {
           </label>
           <label className="block">
             <span className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Purchase Date</span>
-            <input type="date" className={inputClass} value={purchaseDate} onChange={(e) => setPurchaseDate(e.target.value)} />
+            <DatePicker value={purchaseDate} onChange={setPurchaseDate} />
           </label>
           <label className="block">
             <span className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Base Cost (₱)</span>
@@ -394,7 +410,7 @@ function QuickAddForm({ onSaved }: { onSaved: () => Promise<void> }) {
           </label>
           <label className="block">
             <span className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Purchase Date</span>
-            <input type="date" className={inputClass} value={purchaseDate} onChange={(e) => setPurchaseDate(e.target.value)} />
+            <DatePicker value={purchaseDate} onChange={setPurchaseDate} />
           </label>
           <label className="block">
             <span className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Bought From</span>

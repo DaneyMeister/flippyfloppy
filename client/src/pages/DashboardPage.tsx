@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Wallet, TrendingUp, PiggyBank, Layers } from 'lucide-react';
 import { api, ApiError } from '../api/client';
 import { GROUP_TYPES, type DashboardSummary } from '../types';
-import { SummaryCard } from '../components/SummaryCard';
+import { DashboardStats } from '../components/DashboardStats';
 import { GroupDetailModal } from '../components/GroupDetailModal';
 import { formatPhp, formatDate } from '../utils/format';
 import { cardClass, inputClass } from '../components/FormField';
@@ -43,29 +42,8 @@ export function DashboardPage() {
   if (!summary) return null;
 
   return (
-    <div className="space-y-8">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <SummaryCard
-          title="Total Expenses"
-          value={formatPhp(summary.totalExpenses)}
-          subtitle="Base cost + additional expenses"
-          icon={Wallet}
-        />
-        <SummaryCard title="Total Revenue" value={formatPhp(summary.totalRevenue)} subtitle="Sold inventory only" icon={TrendingUp} />
-        <SummaryCard
-          title="Net Profit / Loss"
-          value={formatPhp(summary.netProfit)}
-          subtitle={summary.netProfit >= 0 ? 'Positive margin' : 'Loss position'}
-          tone={summary.netProfit >= 0 ? 'positive' : 'negative'}
-          icon={PiggyBank}
-        />
-        <SummaryCard
-          title="Total Liquid Assets"
-          value={formatPhp(summary.totalLiquidAssets)}
-          subtitle={`${summary.sellingItemCount} item${summary.sellingItemCount === 1 ? '' : 's'} for sale`}
-          icon={Layers}
-        />
-      </div>
+    <div className="animate-fade-in space-y-8">
+      <DashboardStats summary={summary} />
 
       <div>
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -102,7 +80,7 @@ export function DashboardPage() {
                 <button
                   key={s.group.id}
                   onClick={() => setSelectedGroupId(s.group.id)}
-                  className={`${cardClass} flex w-full cursor-pointer flex-col text-left transition-shadow hover:shadow-md`}
+                  className={`${cardClass} flex w-full cursor-pointer flex-col text-left transition duration-200 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0`}
                 >
                   <div className="flex items-start justify-between gap-2">
                     <h3 className="truncate font-display font-bold text-slate-900 dark:text-white">{s.group.groupName}</h3>

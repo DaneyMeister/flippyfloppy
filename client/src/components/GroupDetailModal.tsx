@@ -91,8 +91,8 @@ export function GroupDetailModal({ groupId, onClose }: { groupId: string; onClos
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4">
-      <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl dark:bg-slate-900 sm:max-w-2xl sm:rounded-3xl">
+      <div className="absolute inset-0 animate-fade-in bg-slate-900/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative flex max-h-[92vh] w-full animate-sheet-up flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl sm:animate-modal-in dark:bg-slate-900 sm:max-w-2xl sm:rounded-3xl">
         <div className="flex items-start justify-between gap-3 border-b border-slate-100 px-6 py-5 dark:border-slate-800">
           <div className="min-w-0">
             <h2 className="truncate font-display text-xl font-extrabold text-slate-900 dark:text-white">{group.group_name}</h2>

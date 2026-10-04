@@ -22,13 +22,13 @@ export function StatusSelect({
   const style = STATUS_STYLES[status as ItemStatus] ?? 'bg-slate-100 text-slate-600 ring-1 ring-inset ring-slate-200';
 
   return (
-    <div className={`relative inline-flex items-center rounded-full text-xs font-semibold ${style} ${disabled ? 'opacity-50' : ''}`}>
+    <div className={`relative inline-flex items-center rounded-full text-xs font-semibold transition-colors ${style} ${disabled ? 'opacity-50' : ''}`}>
       <span className="pointer-events-none absolute left-2.5 h-1.5 w-1.5 rounded-full bg-current" />
       <select
         value={status}
         disabled={disabled}
         onChange={(e) => onChange(e.target.value as ItemStatus)}
-        className="appearance-none rounded-full bg-transparent py-1 pl-6 pr-6 text-xs font-semibold outline-none disabled:cursor-not-allowed"
+        className="status-select appearance-none rounded-full bg-transparent py-1 pl-6 pr-6 text-xs font-semibold outline-none disabled:cursor-not-allowed"
       >
         {ITEM_STATUSES.map((s) => (
           <option key={s} value={s} className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">

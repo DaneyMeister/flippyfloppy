@@ -1,6 +1,7 @@
 import seed from './seed.json';
 import { SHARED_RUNNING_COST_GROUP_NAMES } from '../types';
 import type { GroupExpenseRow, InventoryItemRow, ItemGroupRow } from '../types';
+import { buildDailyTimeline, buildProfitTimeline } from '../utils/profitTimeline';
 
 /**
  * In-browser stand-in for the Express API, used only when the client is built
@@ -155,6 +156,10 @@ function dashboard() {
     totalLiquidAssets: selling.reduce((s, i) => s + num(i.assigned_cost), 0),
     sellingItemCount: selling.length,
     groupSummaries,
+    profitTimeline: buildProfitTimeline(
+      groupSummaries.map((g) => ({ month: g.group.purchaseDate.slice(0, 7), amount: g.totalCost })),
+      sold.map((i) => ({ month: new Date(i.sale_date ?? i.created_at).toISOString().slice(0, 7), amount: num(i.sold_price) }))
+    ),
   };
 }
 
@@ -188,7 +193,17 @@ function monthly(year: number, month: number) {
     }
   }
 
-  return { totalExpenses, totalRevenue, netProfit: totalRevenue - totalExpenses, itemsSold: soldItems.length, topCategory, soldItems };
+  const dailyTimeline = buildDailyTimeline(
+    year,
+    month,
+    monthGroups.map((g) => ({
+      date: g.purchase_date,
+      amount: num(g.base_cost) + db.expenses.filter((e) => e.group_id === g.id).reduce((s, e) => s + num(e.amount), 0),
+    })),
+    soldItems.map((i) => ({ date: new Date(i.sale_date!).toISOString().slice(0, 10), amount: num(i.sold_price) }))
+  );
+
+  return { totalExpenses, totalRevenue, netProfit: totalRevenue - totalExpenses, itemsSold: soldItems.length, topCategory, soldItems, dailyTimeline };
 }
 
 function priceLookup(keyword: string) {

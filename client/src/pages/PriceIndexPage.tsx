@@ -1,56 +1,86 @@
-import { useState, type FormEvent } from 'react';
-import { Search, Wallet, Tag, Trophy } from 'lucide-react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { Search, Wallet, Tag, Trophy, Loader2 } from 'lucide-react';
 import { api, ApiError } from '../api/client';
 import type { PriceLookupResult } from '../types';
 import { formatDate, formatPhp } from '../utils/format';
-import { buttonClass, cardClass, inputClass } from '../components/FormField';
+import { cardClass, inputClass, cardSurfaceClass } from '../components/FormField';
 import { SummaryCard } from '../components/SummaryCard';
 import { PriceIndexSkeleton } from '../components/Skeletons';
+
+/** Wait this long after the last keystroke before searching. */
+const SEARCH_DELAY_MS = 250;
 
 export function PriceIndexPage() {
   const [query, setQuery] = useState('');
   const [result, setResult] = useState<PriceLookupResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Bumped per search, so a slow older response can't overwrite a newer one.
+  const latestSearch = useRef(0);
 
-  async function handleSearch(e: FormEvent) {
-    e.preventDefault();
-    if (!query.trim()) return;
+  async function runSearch(keyword: string) {
+    const searchId = ++latestSearch.current;
+    if (!keyword) {
+      setResult(null);
+      setLoading(false);
+      setError(null);
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
-      const data = await api.get<PriceLookupResult>(`/api/analytics/price-lookup?q=${encodeURIComponent(query.trim())}`);
-      setResult(data);
+      const data = await api.get<PriceLookupResult>(`/api/analytics/price-lookup?q=${encodeURIComponent(keyword)}`);
+      if (searchId === latestSearch.current) setResult(data);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Search failed');
+      if (searchId === latestSearch.current) setError(err instanceof ApiError ? err.message : 'Search failed');
     } finally {
-      setLoading(false);
+      if (searchId === latestSearch.current) setLoading(false);
     }
+  }
+
+  // Search as you type, once typing pauses.
+  useEffect(() => {
+    const timer = setTimeout(() => runSearch(query.trim()), SEARCH_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  // Enter searches straight away instead of waiting out the delay.
+  function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    runSearch(query.trim());
   }
 
   return (
     <div className="space-y-6">
-      <form onSubmit={handleSearch} className="flex max-w-lg flex-col gap-2 sm:flex-row">
-        <div className="relative flex-1">
+      <form onSubmit={handleSubmit} role="search" className="max-w-lg">
+        <div className="relative">
           <Search size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
-            className={`${inputClass} pl-10`}
+            type="search"
+            aria-label="Search sold items"
+            className={`${inputClass} pl-10 pr-10`}
             placeholder="Search by name, category, or notes (e.g. RTX 3060)"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
+          {loading && (
+            <Loader2
+              size={16}
+              aria-label="Searching"
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 animate-spin text-slate-400"
+            />
+          )}
         </div>
-        <button type="submit" disabled={loading} className={buttonClass}>
-          {loading ? 'Searching…' : 'Search'}
-        </button>
       </form>
 
       {error && <p className="text-red-600">{error}</p>}
 
-      {loading && <PriceIndexSkeleton />}
+      {/* Skeleton only for the first search; after that the old results stay
+          (dimmed) until the new ones land, so typing doesn't flash the page. */}
+      {loading && !result && <PriceIndexSkeleton />}
 
-      {result && !loading && (
-        <>
+      {result && (
+        <div className={`animate-fade-in space-y-6 transition-opacity ${loading ? 'opacity-60' : ''}`}>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <SummaryCard title="Average Acquired Cost" value={formatPhp(result.averageAcquiredCost)} subtitle={`${result.matches.length} match(es)`} icon={Wallet} />
             <SummaryCard title="Average Sold Price" value={formatPhp(result.averageSoldPrice)} icon={Tag} />
@@ -81,7 +111,7 @@ export function PriceIndexPage() {
                 </div>
 
                 {/* Desktop: table */}
-                <div className={`${cardClass} hidden overflow-x-auto p-0 md:block`}>
+                <div className={`${cardSurfaceClass} hidden overflow-x-auto md:block`}>
                   <table className="w-full min-w-[560px] text-left text-sm">
                     <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase text-slate-500 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400">
                       <tr>
@@ -106,7 +136,7 @@ export function PriceIndexPage() {
               </>
             )}
           </div>
-        </>
+        </div>
       )}
     </div>
   );

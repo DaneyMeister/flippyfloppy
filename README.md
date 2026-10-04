@@ -191,9 +191,9 @@ Pages on a private repository needs a paid GitHub plan. The password hash ends u
 | `/sell-build` | Sell Build | Choose items that are still for sale, set a sold price for each, and record the buyer and date |
 | `/sold-items` | Sold Items | Sales history; a sale can be returned from here |
 | `/monthly-summary` | Monthly Summary | Expenses, revenue, profit and top category for a chosen month |
-| `/price-index` | Price Index | Search past sales by keyword (e.g. "RTX 3060") to help price new listings |
+| `/price-index` | Price Index | Search past sales by keyword (e.g. "RTX 3060"); results update as you type, to help price new listings |
 
-The sidebar has a light/dark theme toggle. While data loads, every screen shows a shimmering skeleton of its own layout. On phones, the tables (Inventory, Monthly Summary, Price Index) turn into stacked cards.
+The account menu (the avatar in the top-right corner) holds the light/dark theme toggle and Log out. While data loads, every screen shows a shimmering skeleton of its own layout. On phones, the tables (Inventory, Monthly Summary, Price Index) turn into stacked cards; Inventory stays as cards, two per row, up to laptop width. Price Index searches as you type.
 
 ### Main flow: buy → list → sell → review
 

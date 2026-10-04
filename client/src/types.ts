@@ -80,6 +80,24 @@ export interface GroupSummary {
   itemCount: number;
 }
 
+export interface ProfitTimelinePoint {
+  /** 'YYYY-MM' */
+  month: string;
+  expenses: number;
+  revenue: number;
+  /** Running net profit up to and including this month. */
+  cumulativeNet: number;
+}
+
+export interface DailyTimelinePoint {
+  /** 'YYYY-MM-DD' */
+  date: string;
+  expenses: number;
+  revenue: number;
+  /** Running net profit for the month up to and including this day. */
+  cumulativeNet: number;
+}
+
 export interface DashboardSummary {
   totalExpenses: number;
   totalRevenue: number;
@@ -87,6 +105,7 @@ export interface DashboardSummary {
   totalLiquidAssets: number;
   sellingItemCount: number;
   groupSummaries: GroupSummary[];
+  profitTimeline: ProfitTimelinePoint[];
 }
 
 export interface MonthlyReport {
@@ -96,6 +115,7 @@ export interface MonthlyReport {
   itemsSold: number;
   topCategory: string;
   soldItems: InventoryItemRow[];
+  dailyTimeline: DailyTimelinePoint[];
 }
 
 export interface PriceHistoryEntry {

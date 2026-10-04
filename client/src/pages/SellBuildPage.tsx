@@ -4,8 +4,9 @@ import { useInventory } from '../context/InventoryContext';
 import { api, ApiError } from '../api/client';
 import type { InventoryItemRow } from '../types';
 import { formatPhp, parseMoney, todayDateInput } from '../utils/format';
-import { buttonClass, cardClass, inputClass } from '../components/FormField';
+import { buttonClass, cardClass, inputClass, cardSurfaceClass } from '../components/FormField';
 import { SellBuildSkeleton } from '../components/Skeletons';
+import { DatePicker } from '../components/DatePicker';
 
 export function SellBuildPage() {
   const { items, loading, groupNameForItem, refresh } = useInventory();
@@ -80,7 +81,7 @@ export function SellBuildPage() {
   if (loading && items.length === 0) return <SellBuildSkeleton />;
 
   return (
-    <div className="space-y-6">
+    <div className="animate-fade-in space-y-6">
       {error && <p className="text-sm text-red-600">{error}</p>}
       {message && <p className="text-sm text-teal-600">{message}</p>}
 
@@ -95,7 +96,7 @@ export function SellBuildPage() {
           />
         </div>
         {search.trim() && (
-          <div className={`${cardClass} mt-2 max-h-72 overflow-y-auto p-0`}>
+          <div className={`${cardSurfaceClass} mt-2 max-h-72 overflow-y-auto`}>
             {suggestions.length === 0 ? (
               <p className="p-4 text-sm text-slate-500">No matching Selling-status items found.</p>
             ) : (
@@ -165,7 +166,7 @@ export function SellBuildPage() {
           </label>
           <label className="block">
             <span className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Sale Date</span>
-            <input type="date" className={inputClass} value={saleDate} onChange={(e) => setSaleDate(e.target.value)} />
+            <DatePicker value={saleDate} onChange={setSaleDate} />
           </label>
           <label className="block sm:col-span-2">
             <span className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Listing Link (applies to every item in this build)</span>

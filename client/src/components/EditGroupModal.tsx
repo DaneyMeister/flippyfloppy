@@ -14,6 +14,8 @@ import {
 } from '../types';
 import { formatPhp, parseMoney, toDateInput } from '../utils/format';
 import { buttonClass, inputClass, secondaryButtonClass } from './FormField';
+import { useConfirm } from './ConfirmDialog';
+import { DatePicker } from './DatePicker';
 
 export function EditGroupModal({ groupId, onClose }: { groupId: string; onClose: () => void }) {
   const { groupById, itemsForGroup, refresh } = useInventory();
@@ -30,6 +32,7 @@ export function EditGroupModal({ groupId, onClose }: { groupId: string; onClose:
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [editingItem, setEditingItem] = useState<InventoryItemRow | null>(null);
+  const [confirm, confirmDialog] = useConfirm();
 
   const [showAddComponent, setShowAddComponent] = useState(false);
   const [newName, setNewName] = useState('');
@@ -78,7 +81,18 @@ export function EditGroupModal({ groupId, onClose }: { groupId: string; onClose:
   }
 
   async function deleteComponent(item: InventoryItemRow) {
-    if (!confirm(`Permanently delete "${item.name}" from inventory?`)) return;
+    const ok = await confirm({
+      title: 'Delete this item?',
+      message: (
+        <>
+          <span className="font-semibold text-slate-700 dark:text-slate-200">{item.name}</span> will be permanently removed from
+          your inventory. This cannot be undone.
+        </>
+      ),
+      confirmLabel: 'Delete Item',
+      cancelLabel: 'Keep the Item',
+    });
+    if (!ok) return;
     setBusyId(item.id);
     setError(null);
     try {
@@ -145,8 +159,8 @@ export function EditGroupModal({ groupId, onClose }: { groupId: string; onClose:
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4">
-      <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl dark:bg-slate-900 sm:max-w-xl sm:rounded-3xl">
+      <div className="absolute inset-0 animate-fade-in bg-slate-900/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative flex max-h-[92vh] w-full animate-sheet-up flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl sm:animate-modal-in dark:bg-slate-900 sm:max-w-xl sm:rounded-3xl">
         <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-6 py-5 dark:border-slate-800">
           <h2 className="font-display text-xl font-extrabold text-slate-900 dark:text-white">Edit {group.group_type}</h2>
           <button onClick={onClose} className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="Close">
@@ -180,7 +194,7 @@ export function EditGroupModal({ groupId, onClose }: { groupId: string; onClose:
               </label>
               <label className="block">
                 <span className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">Purchase Date</span>
-                <input type="date" className={inputClass} value={purchaseDate} onChange={(e) => setPurchaseDate(e.target.value)} />
+                <DatePicker value={purchaseDate} onChange={setPurchaseDate} />
               </label>
             </div>
             <label className="block">
@@ -305,6 +319,7 @@ export function EditGroupModal({ groupId, onClose }: { groupId: string; onClose:
       </div>
 
       {editingItem && <EditItemModal item={editingItem} onClose={() => setEditingItem(null)} />}
+      {confirmDialog}
     </div>
   );
 }

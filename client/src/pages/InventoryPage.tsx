@@ -6,9 +6,10 @@ import { EditItemModal } from '../components/EditItemModal';
 import { formatPhp, formatDate } from '../utils/format';
 import { api, ApiError } from '../api/client';
 import { ITEM_STATUSES, type InventoryItemRow, type ItemStatus } from '../types';
-import { cardClass, dangerTextButtonClass, inputClass } from '../components/FormField';
+import { cardClass, dangerTextButtonClass, inputClass, cardSurfaceClass } from '../components/FormField';
 import { compareByName, compareByPriority, compareBySaleDateDesc } from '../utils/sort';
 import { InventorySkeleton } from '../components/Skeletons';
+import { useConfirm } from '../components/ConfirmDialog';
 
 export function InventoryPage() {
   const { items, groups, loading, error, refresh, groupById, groupNameForItem } = useInventory();
@@ -17,6 +18,7 @@ export function InventoryPage() {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [editingItem, setEditingItem] = useState<InventoryItemRow | null>(null);
+  const [confirm, confirmDialog] = useConfirm();
 
   // "All statuses" defaults to active (non-sold) inventory -- sold items get
   // their own history in Sold Items -- but selecting SOLD explicitly here
@@ -80,7 +82,18 @@ export function InventoryPage() {
   }
 
   async function deleteItem(item: InventoryItemRow) {
-    if (!confirm(`Delete "${item.name}"? This cannot be undone.`)) return;
+    const ok = await confirm({
+      title: 'Delete this item?',
+      message: (
+        <>
+          <span className="font-semibold text-slate-700 dark:text-slate-200">{item.name}</span> will be permanently removed from
+          your inventory. This cannot be undone.
+        </>
+      ),
+      confirmLabel: 'Delete Item',
+      cancelLabel: 'Keep the Item',
+    });
+    if (!ok) return;
     setBusyId(item.id);
     setActionError(null);
     try {
@@ -97,7 +110,7 @@ export function InventoryPage() {
   if (error) return <p className="text-red-600">{error}</p>;
 
   return (
-    <div className="space-y-4">
+    <div className="animate-fade-in space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative flex-1 sm:max-w-xs">
           <Search size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -133,8 +146,8 @@ export function InventoryPage() {
         </div>
       ) : (
         <>
-          {/* Mobile: card list */}
-          <div className="space-y-3 md:hidden">
+          {/* Phones: one column of cards. Tablet and small laptops: two columns. Desktop (xl): table. */}
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:hidden">
             {filtered.map((item) => (
               <div
                 key={item.id}
@@ -142,46 +155,44 @@ export function InventoryPage() {
                 tabIndex={0}
                 onClick={() => setEditingItem(item)}
                 onKeyDown={(e) => handleRowKeyDown(e, item)}
-                className={`${cardClass} cursor-pointer transition-shadow hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 ${busyId === item.id ? 'opacity-50' : ''}`}
+                className={`${cardSurfaceClass} cursor-pointer p-4 transition-shadow hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 ${busyId === item.id ? 'opacity-50' : ''}`}
               >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="truncate font-semibold text-slate-900 dark:text-white">{item.name}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
-                      {item.category} &middot; {groupNameForItem(item) || 'No group'}
-                    </p>
-                  </div>
-                  <button
-                    disabled={busyId === item.id}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      deleteItem(item);
-                    }}
-                    onKeyDown={(e) => e.stopPropagation()}
-                    className={dangerTextButtonClass}
-                    aria-label="Delete item"
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                <div className="flex items-baseline justify-between gap-3">
+                  <p className="min-w-0 truncate font-semibold text-slate-900 dark:text-white">{item.name}</p>
+                  <span className="shrink-0 font-display text-xl font-extrabold tracking-tight tabular-nums text-slate-900 dark:text-white">
+                    {formatPhp(item.assigned_cost)}
+                  </span>
                 </div>
+                <p className="mt-0.5 truncate text-xs text-slate-500 dark:text-slate-400">
+                  {item.category} &middot; {groupNameForItem(item) || 'No group'}
+                </p>
+
                 <div
-                  className="mt-3 flex flex-wrap items-center justify-between gap-2"
+                  className="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 pt-3 dark:border-slate-800"
                   onClick={(e) => e.stopPropagation()}
                   onKeyDown={(e) => e.stopPropagation()}
                 >
                   <StatusSelect status={item.status} disabled={busyId === item.id} onChange={(status) => changeStatus(item, status)} />
-                  <span className="font-semibold text-slate-900 dark:text-white">{formatPhp(item.assigned_cost)}</span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs text-slate-400">
+                      {item.status === 'SOLD' ? `Sold ${formatDate(item.sale_date)}` : `Bought ${formatDate(purchaseDateFor(item))}`}
+                    </span>
+                    <button
+                      disabled={busyId === item.id}
+                      onClick={() => deleteItem(item)}
+                      className="-mr-1.5 rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-red-500/10 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50 dark:text-slate-500 dark:hover:text-red-400"
+                      aria-label={`Delete ${item.name}`}
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
                 </div>
-                <p className="mt-2 text-xs text-slate-400">
-                  Purchased {formatDate(purchaseDateFor(item))}
-                  {item.status === 'SOLD' && <> &middot; Sold {formatDate(item.sale_date)}</>}
-                </p>
               </div>
             ))}
           </div>
 
           {/* Desktop: table */}
-          <div className={`${cardClass} hidden overflow-x-auto p-0 md:block`}>
+          <div className={`${cardSurfaceClass} hidden overflow-x-auto xl:block`}>
             <table className="w-full min-w-[820px] text-left text-sm">
               <thead className="border-b border-slate-100 bg-slate-50/60 text-xs uppercase tracking-wide text-slate-500 dark:border-slate-800 dark:bg-slate-950/40 dark:text-slate-400">
                 <tr>
@@ -228,6 +239,7 @@ export function InventoryPage() {
       )}
 
       {editingItem && <EditItemModal item={editingItem} onClose={() => setEditingItem(null)} />}
+      {confirmDialog}
     </div>
   );
 }

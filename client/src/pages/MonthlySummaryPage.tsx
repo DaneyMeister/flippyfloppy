@@ -1,11 +1,20 @@
 import { useEffect, useState } from 'react';
-import { Wallet, TrendingUp, PiggyBank, PackageCheck } from 'lucide-react';
 import { api, ApiError } from '../api/client';
 import type { MonthlyReport } from '../types';
 import { formatDate, formatPhp } from '../utils/format';
-import { SummaryCard } from '../components/SummaryCard';
-import { cardClass, inputClass } from '../components/FormField';
+import { StatTile, StatsLayout } from '../components/StatCards';
+import { ProfitChart } from '../components/ProfitChart';
+import { dayPoints } from '../utils/chartPoints';
+import { cardClass, cardSurfaceClass } from '../components/FormField';
 import { MonthlySummarySkeleton } from '../components/Skeletons';
+import { MonthPicker } from '../components/DatePicker';
+
+/** "+16.3% return on spending", or why there's no percentage. */
+function returnLine(report: MonthlyReport) {
+  if (report.totalExpenses === 0) return report.totalRevenue === 0 ? 'No purchases or sales' : 'No purchases this month';
+  const margin = (report.netProfit / report.totalExpenses) * 100;
+  return `${report.netProfit >= 0 ? '+' : ''}${margin.toFixed(1)}% return on spending`;
+}
 
 function currentMonthValue() {
   const now = new Date();
@@ -33,28 +42,46 @@ export function MonthlySummaryPage() {
     <div className="space-y-6">
       <label className="block max-w-xs">
         <span className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Month</span>
-        <input type="month" className={inputClass} value={monthValue} onChange={(e) => setMonthValue(e.target.value)} />
+        <MonthPicker value={monthValue} onChange={setMonthValue} />
       </label>
 
       {loading && <MonthlySummarySkeleton />}
       {error && <p className="text-red-600">{error}</p>}
 
       {report && !loading && (
-        <>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <SummaryCard title="Total Monthly Expense" value={formatPhp(report.totalExpenses)} subtitle="Acquisition cost + fees" icon={Wallet} />
-            <SummaryCard title="Total Monthly Revenue" value={formatPhp(report.totalRevenue)} icon={TrendingUp} />
-            <SummaryCard
-              title="Net Profit / Loss"
-              value={formatPhp(report.netProfit)}
-              tone={report.netProfit >= 0 ? 'positive' : 'negative'}
-              icon={PiggyBank}
-            />
-            <SummaryCard title="Items Sold" value={String(report.itemsSold)} subtitle={`Top category: ${report.topCategory}`} icon={PackageCheck} />
-          </div>
+        <div className="animate-fade-in space-y-6">
+          <StatsLayout
+            netProfit={report.netProfit}
+            subline={returnLine(report)}
+            breakdown={[
+              {
+                label: 'Cost recovered',
+                value: report.totalExpenses === 0 ? '-' : `${Math.round((report.totalRevenue / report.totalExpenses) * 100)}%`,
+              },
+              { label: 'Average sale', value: report.itemsSold === 0 ? '-' : formatPhp(report.totalRevenue / report.itemsSold) },
+            ]}
+            chart={
+              <ProfitChart
+                data={dayPoints(report.dailyTimeline)}
+                title="Net profit, day by day"
+                emptyMessage="No purchases or sales this month yet."
+              />
+            }
+            tiles={
+              <>
+                <StatTile title="Total Monthly Expense" value={formatPhp(report.totalExpenses)} pill="Purchases + fees" />
+                <StatTile title="Total Monthly Revenue" value={formatPhp(report.totalRevenue)} pill="Sales" />
+                <StatTile
+                  title="Items Sold"
+                  value={String(report.itemsSold)}
+                  pill={report.itemsSold === 0 ? 'No sales' : `Top: ${report.topCategory}`}
+                />
+              </>
+            }
+          />
 
           <div>
-            <h2 className="mb-3 font-bold text-slate-900 dark:text-slate-50">Sold This Month</h2>
+            <h2 className="mb-4 font-display text-lg font-bold text-slate-900 dark:text-white">Sold This Month</h2>
             {report.soldItems.length === 0 ? (
               <div className={cardClass}>
                 <p className="text-sm text-slate-500 dark:text-slate-400">No sales recorded for this month.</p>
@@ -64,29 +91,32 @@ export function MonthlySummaryPage() {
                 {/* Mobile: card list */}
                 <div className="space-y-3 md:hidden">
                   {report.soldItems.map((item) => (
-                    <div key={item.id} className={cardClass}>
-                      <div className="flex items-start justify-between gap-3">
-                        <p className="truncate font-semibold text-slate-900 dark:text-white">{item.name}</p>
-                        <span className="shrink-0 font-semibold text-slate-900 dark:text-white">{formatPhp(item.sold_price)}</span>
+                    <div key={item.id} className={`${cardSurfaceClass} p-4`}>
+                      <div className="flex items-baseline justify-between gap-3">
+                        <p className="min-w-0 truncate font-semibold text-slate-900 dark:text-white">{item.name}</p>
+                        <span className="shrink-0 font-display text-xl font-extrabold tracking-tight tabular-nums text-slate-900 dark:text-white">
+                          {formatPhp(item.sold_price)}
+                        </span>
                       </div>
-                      <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{item.category}</p>
-                      <p className="mt-2 text-xs text-slate-400">
-                        Buyer: {item.buyer_name ?? '-'} &middot; Sold {formatDate(item.sale_date)}
-                      </p>
+                      <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{item.category}</p>
+                      <div className="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 pt-3 text-xs text-slate-400 dark:border-slate-800">
+                        <span className="truncate">Buyer: {item.buyer_name ?? '-'}</span>
+                        <span className="shrink-0">Sold {formatDate(item.sale_date)}</span>
+                      </div>
                     </div>
                   ))}
                 </div>
 
                 {/* Desktop: table */}
-                <div className={`${cardClass} hidden overflow-x-auto p-0 md:block`}>
+                <div className={`${cardSurfaceClass} hidden overflow-x-auto md:block`}>
                   <table className="w-full min-w-[560px] text-left text-sm">
-                    <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase text-slate-500 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400">
+                    <thead className="border-b border-slate-100 bg-slate-50/60 text-xs uppercase tracking-wide text-slate-500 dark:border-slate-800 dark:bg-slate-950/40 dark:text-slate-400">
                       <tr>
-                        <th className="px-4 py-3">Name</th>
-                        <th className="px-4 py-3">Category</th>
-                        <th className="px-4 py-3">Buyer</th>
-                        <th className="px-4 py-3">Sale Date</th>
-                        <th className="px-4 py-3 text-right">Sold Price</th>
+                        <th className="px-4 py-3 font-semibold">Name</th>
+                        <th className="px-4 py-3 font-semibold">Category</th>
+                        <th className="px-4 py-3 font-semibold">Buyer</th>
+                        <th className="px-4 py-3 font-semibold">Sale Date</th>
+                        <th className="px-4 py-3 text-right font-semibold">Sold Price</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -105,7 +135,7 @@ export function MonthlySummaryPage() {
               </>
             )}
           </div>
-        </>
+        </div>
       )}
     </div>
   );
