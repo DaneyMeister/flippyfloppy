@@ -1,6 +1,6 @@
 # Security checklist
 
-Filled in for FlippyFloppy (`DaneyMeister/apsi`) on 2026-09-27, before making the repository public, and updated at the end of week 2 (after the security fixes, Sep 24–27).
+Filled in for FlippyFloppy (`DaneyMeister/flippyfloppy`, then called `DaneyMeister/apsi`) on 2026-09-27, before making the repository public, and updated at the end of week 2 (after the security fixes, Sep 24–27).
 Every answer below was checked against the repository and my local setup on that date.
 
 ## Secrets and credentials
@@ -64,7 +64,7 @@ The project has one workflow, `.github/workflows/deploy-pages.yml`. It builds th
 | 28 | No classmate's personal data in the repository | Yes | No classmate data. Buyer names are only in my local, gitignored `migration_data/`. The code mentions one of my own group names ("Lolo Jhun") in a sort-order comment and rule in `client/src/utils/sort.ts`, which is a group label, not contact details |
 | 29 | Dependencies come from official registries, and `node_modules` is gitignored | Yes | All 263 `resolved` URLs in both `package-lock.json` files point to `registry.npmjs.org`; `.gitignore` line 1 is `node_modules/` |
 | 30 | Images, fonts and other assets are mine, licensed, or credited | Yes | I generated the logo and favicons myself with an image tool. The fonts (Plus Jakarta Sans, Lexend) are free Google Fonts, the icons are lucide-react (ISC licence), and `client/public/icons.svg` is the unused Vite starter sprite (MIT) |
-| 31 | Repository visibility is deliberate, and I checked it after my last push | Yes | It is private for now on purpose: an anonymous request to `api.github.com/repos/DaneyMeister/apsi` returns 404. I will re-check after rows 20 and 27 are fixed and I make it public |
+| 31 | Repository visibility is deliberate, and I checked it after my last push | Yes | It is private for now on purpose: an anonymous request to `api.github.com/repos/DaneyMeister/flippyfloppy` returns 404. I will re-check after rows 20 and 27 are fixed and I make it public |
 
 ## Anything I found and fixed
 

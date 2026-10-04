@@ -30,8 +30,8 @@ It is a single-user app: one owner logs in and manages their own records.
 ### Get the code
 
 ```bash
-git clone https://github.com/DaneyMeister/apsi.git
-cd apsi
+git clone https://github.com/DaneyMeister/flippyfloppy.git
+cd flippyfloppy
 ```
 
 The repository root contains `client/` and `server/`.

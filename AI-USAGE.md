@@ -2,11 +2,11 @@
 
 How AI was used to build FlippyFloppy, where it got things wrong, and which parts I wrote myself.
 
-Repository: https://github.com/DaneyMeister/apsi
+Repository: https://github.com/DaneyMeister/flippyfloppy
 
 > **Note on commit history:** I built the app from 2026-08-27 to 2026-09-03, before the project
 > was under git, so all of that work landed in one commit,
-> [`5b3fca7`](https://github.com/DaneyMeister/apsi/commit/5b3fca75c0f0ee74bbd6e341724b344b822cc063)
+> [`5b3fca7`](https://github.com/DaneyMeister/flippyfloppy/commit/5b3fca75c0f0ee74bbd6e341724b344b822cc063)
 > (2026-09-16). Entries 1–7 therefore link to that commit. Work from 2026-09-27 onward is
 > committed separately, so later entries link to their own commits.
 
@@ -32,14 +32,14 @@ real business data, and caught the problems listed in section 2.
 
   Finally, it typechecked and built both, and wrote a README with a "Manual Steps Required by User" section.
 - **What I kept / changed / why:** I kept the structure and the choice of raw `pg` queries with no ORM, one of the options I had offered it. Everything else I changed by giving it follow-up prompts after testing (entries 3–5), not by editing the code myself.
-- **Commit:** [`5b3fca7`](https://github.com/DaneyMeister/apsi/commit/5b3fca75c0f0ee74bbd6e341724b344b822cc063)
+- **Commit:** [`5b3fca7`](https://github.com/DaneyMeister/flippyfloppy/commit/5b3fca75c0f0ee74bbd6e341724b344b822cc063)
 
 ### 2. Setting up PostgreSQL and importing my real data
 - **Date / tool:** 2026-08-27, Claude Code
 - **What I asked:** Where to run the Postgres setup commands, what port to use, and what to do after installing PostgreSQL 18 with the website installer instead of the terminal. Then I asked it to help me get the database working.
 - **What it gave back:** It found `psql.exe` under `C:\Program Files\PostgreSQL\18\bin` even though it wasn't on my PATH yet. It gave me the commands to create the user and database. It pulled my three tables from Supabase using the project URL and anon key in my Flutter `main.dart`, and saved them to `migration_data/`. It wrote `server/src/db/import-supabase-data.ts` to load them into Postgres with the original IDs kept, so the foreign keys still line up. It then checked the totals through the API: 22 groups, 147 items, 35 expenses, ₱27,110 net profit.
 - **What I kept / changed / why:** I ran the database-creation commands myself (see section 2, case 4). I kept the import script, and I kept `migration_data/` in `.gitignore` because it contains my buyers' names.
-- **Commit:** [`5b3fca7`](https://github.com/DaneyMeister/apsi/commit/5b3fca75c0f0ee74bbd6e341724b344b822cc063)
+- **Commit:** [`5b3fca7`](https://github.com/DaneyMeister/flippyfloppy/commit/5b3fca75c0f0ee74bbd6e341724b344b822cc063)
 
 ### 3. Redesigning the UI and making it responsive
 - **Date / tool:** 2026-08-27, Claude Code
@@ -51,7 +51,7 @@ real business data, and caught the problems listed in section 2.
   - Loading skeletons and a redesigned login screen.
   - An Inventory table that turns into stacked cards on mobile.
 - **What I kept / changed / why:** I kept all of it, then asked for smaller layout fixes: the "22 groups" label wrapped onto two lines, and dates wrapped in the Inventory table. On mobile, Monthly Summary cut off columns, so I sent screenshots and asked for the stacked-card layout that Inventory already used.
-- **Commit:** [`5b3fca7`](https://github.com/DaneyMeister/apsi/commit/5b3fca75c0f0ee74bbd6e341724b344b822cc063)
+- **Commit:** [`5b3fca7`](https://github.com/DaneyMeister/flippyfloppy/commit/5b3fca75c0f0ee74bbd6e341724b344b822cc063)
 
 ### 4. Matching the features of my original app
 - **Date / tool:** 2026-08-27, Claude Code
@@ -70,21 +70,21 @@ real business data, and caught the problems listed in section 2.
   - `utils/sort.ts`, a port of the Dart `compareByPriority` logic
   - the Sold date column
 - **What I kept / changed / why:** I kept all of it. Most of these requests exist because the first version was missing things my original app already did (section 2, cases 1 and 2).
-- **Commit:** [`5b3fca7`](https://github.com/DaneyMeister/apsi/commit/5b3fca75c0f0ee74bbd6e341724b344b822cc063)
+- **Commit:** [`5b3fca7`](https://github.com/DaneyMeister/flippyfloppy/commit/5b3fca75c0f0ee74bbd6e341724b344b822cc063)
 
 ### 5. Dashboard ordering, group-type filter, and the logo
 - **Date / tool:** 2026-08-27, Claude Code
 - **What I asked:** Order the Dashboard groups the same way the Flutter app does, and add a dropdown to show only one group type. I also asked for a prompt I could give an image generator to make a logo, and then asked how to add the PNG I made to the site.
 - **What it gave back:** The group ordering (Bought Components first, then System Units, PC Sets, and so on, newest first within each), the group-type filter, a logo prompt, and the logo wired in as the favicon and on the login screen.
 - **What I kept / changed / why:** I kept the ordering and the filter. I generated the logo myself outside Claude Code, from its prompt.
-- **Commit:** [`5b3fca7`](https://github.com/DaneyMeister/apsi/commit/5b3fca75c0f0ee74bbd6e341724b344b822cc063)
+- **Commit:** [`5b3fca7`](https://github.com/DaneyMeister/flippyfloppy/commit/5b3fca75c0f0ee74bbd6e341724b344b822cc063)
 
 ### 6. Wireframes and design-system review
 - **Date / tool:** 2026-09-01, Claude Code
 - **What I asked:** Complete the course worksheets `02-wireframes.md` and `03-design-system.md` for FlippyFloppy.
 - **What it gave back:** Both documents, written from the app as it already existed. The design-system accessibility check found two real problems in the code it had generated itself: text contrast that was too low, and rows that could not be opened with the keyboard (section 2, case 3).
 - **What I kept / changed / why:** I kept the documents. On 2026-09-03 I asked it to fix both problems (entry 7).
-- **Commit:** [`5b3fca7`](https://github.com/DaneyMeister/apsi/commit/5b3fca75c0f0ee74bbd6e341724b344b822cc063)
+- **Commit:** [`5b3fca7`](https://github.com/DaneyMeister/flippyfloppy/commit/5b3fca75c0f0ee74bbd6e341724b344b822cc063)
 
 ### 7. Accessibility fixes
 - **Date / tool:** 2026-09-03, Claude Code
@@ -93,7 +93,7 @@ real business data, and caught the problems listed in section 2.
   - The green profit text changed from `emerald-600` to `emerald-700`, raising contrast from 3.8:1 to 5.5:1. The files were `DashboardPage.tsx`, `SummaryCard.tsx` and `GroupDetailModal.tsx`.
   - The Inventory rows and Group Detail item rows got `tabIndex={0}`, `role="button"` and an Enter/Space handler. The nested status pill and delete button stop their key events from also opening the editor.
 - **What I kept / changed / why:** I kept it. I tested by tabbing to an Inventory row and pressing Enter.
-- **Commit:** [`5b3fca7`](https://github.com/DaneyMeister/apsi/commit/5b3fca75c0f0ee74bbd6e341724b344b822cc063)
+- **Commit:** [`5b3fca7`](https://github.com/DaneyMeister/flippyfloppy/commit/5b3fca75c0f0ee74bbd6e341724b344b822cc063)
 
 ### 8. Weekly report and README documentation
 - **Date / tool:** 2026-09-27, Claude Code
@@ -103,7 +103,7 @@ real business data, and caught the problems listed in section 2.
   - A README with every environment variable, the setup SQL, a table of all 19 endpoints, a folder map and an honest known-issues list.
   - A draft of this file.
 - **What I kept / changed / why:** I changed the report's date range to end on 2026-09-23, because that was the reporting period. I kept the known issues because they are accurate. It found this AI-usage history by reading my old Claude Code session logs, so the entries above come from the real record instead of from memory.
-- **Commit:** [`3cdeaa7`](https://github.com/DaneyMeister/apsi/commit/3cdeaa771ba47663a414683b49520749d96855f1)
+- **Commit:** [`3cdeaa7`](https://github.com/DaneyMeister/flippyfloppy/commit/3cdeaa771ba47663a414683b49520749d96855f1)
 
 ### 9. Security checklist, sample data, demo mode, Docker and the docs folder
 - **Date / tool:** 2026-09-27, Claude Code
@@ -119,7 +119,7 @@ real business data, and caught the problems listed in section 2.
   - `server/Dockerfile`, `compose.yml` and a top-level `.env.example`.
   - `docs/01`–`03`, rebuilt from my Sep 1–3 proposal, wireframes and design-system pages.
 - **What I kept / changed / why:** _TODO: what I checked or changed myself._ The Docker files are untested because Docker isn't installed on my laptop, and the README says so.
-- **Commit:** [`3cdeaa7`](https://github.com/DaneyMeister/apsi/commit/3cdeaa771ba47663a414683b49520749d96855f1)
+- **Commit:** [`3cdeaa7`](https://github.com/DaneyMeister/flippyfloppy/commit/3cdeaa771ba47663a414683b49520749d96855f1)
 
 ### 10. Week 2 app changes (Sep 24–27)
 - **Date / tool:** 2026-09-24 to 2026-09-27, Claude Code
@@ -146,7 +146,7 @@ real business data, and caught the problems listed in section 2.
   - I made it remove the demo banner and the "any username" login (case 9).
   - I confirmed liquid assets needed no change.
   - I skipped retaking the screenshots for now.
-- **Commit:** [`3cdeaa7`](https://github.com/DaneyMeister/apsi/commit/3cdeaa771ba47663a414683b49520749d96855f1)
+- **Commit:** [`3cdeaa7`](https://github.com/DaneyMeister/flippyfloppy/commit/3cdeaa771ba47663a414683b49520749d96855f1)
 
 ### 11. Week 3 dashboard redesign and UI polish
 - **Date / tool:** 2026-10-03, Claude Code (plus the Impeccable design plugin for one UI critique)
@@ -161,7 +161,7 @@ real business data, and caught the problems listed in section 2.
   - I asked what "Cost recovered" actually calculates before keeping it (revenue ÷ expenses), so I wouldn't show a number I couldn't explain.
   - I had it remove the green glow behind the profit card and the green box around "+16.3% return on cost", because they looked busy, and made the chart line curved instead of sharp.
   - I asked whether delete should be click or press-and-hold, kept a single click with a confirmation window, then had the red button made more subtle and the window given an outline so it stands out.
-- **Commit:** [`2101093`](https://github.com/DaneyMeister/apsi/commit/210109391179b1724363fa8c73011a55179fe0fd)
+- **Commit:** [`2101093`](https://github.com/DaneyMeister/flippyfloppy/commit/210109391179b1724363fa8c73011a55179fe0fd)
 
 ### 12. Week 3 phone/tablet fixes, account menu and live search
 - **Date / tool:** 2026-10-04, Claude Code
@@ -174,7 +174,7 @@ real business data, and caught the problems listed in section 2.
   - Inventory on tablets as cards like the phone view, two per row
 - **What it gave back:** A compact one-row-per-sale list in `SoldItemsPage.tsx`, digit-based font sizes in `StatCards.tsx`, an `AccountMenu` in `Layout.tsx`, a debounced search in `PriceIndexPage.tsx` that ignores slow, out-of-date responses, and a two-column card grid in `InventoryPage.tsx`, with the loading skeletons in `Skeletons.tsx` changed to match each one.
 - **What I kept / changed / why:** I checked each change in the browser at phone and tablet widths and sent new screenshots when something still looked wrong: the profit number needed to be smaller again on tablets, and the Inventory change didn't show up at all at first (section 2, case 11).
-- **Commit:** [`2101093`](https://github.com/DaneyMeister/apsi/commit/210109391179b1724363fa8c73011a55179fe0fd)
+- **Commit:** [`2101093`](https://github.com/DaneyMeister/flippyfloppy/commit/210109391179b1724363fa8c73011a55179fe0fd)
 
 ---
 
@@ -184,67 +184,67 @@ real business data, and caught the problems listed in section 2.
 - **What it gave me:** In the first Inventory page, the status filter listed every status except SOLD. It also used a status badge plus a separate dropdown for each row.
 - **What was wrong:** I had no way to see sold items on the Inventory page, even though the original app could. The badge-plus-dropdown showed the same information twice and did not work like the tap-to-change status in my Flutter app.
 - **What I did instead:** I tested the page, took screenshots, and told it to add SOLD and to make the status itself tappable. That produced `StatusSelect.tsx`, one pill that is also the dropdown.
-- **Commit:** [`5b3fca7`](https://github.com/DaneyMeister/apsi/commit/5b3fca75c0f0ee74bbd6e341724b344b822cc063)
+- **Commit:** [`5b3fca7`](https://github.com/DaneyMeister/flippyfloppy/commit/5b3fca75c0f0ee74bbd6e341724b344b822cc063)
 
 ### 2. It said the port was done, but features from the original app were missing
 - **What it gave me:** It said the web app "mirrors the original Flutter app's data model and business logic". When I used it, items could not be opened to edit and groups could not be opened for details. The item order did not match my app, and items in batch groups showed "-" instead of the purchase date.
 - **What was wrong:** The summary claimed more than was built. The Flutter app had an `EditItemSheet`, a group detail sheet, an `EditGroupScreen` and a specific sort order (`compareByPriority`). The first web version had none of these.
 - **What I did instead:** I went through the web app and my Flutter app side by side and asked for each missing piece in turn. That is where `EditItemModal.tsx`, `GroupDetailModal.tsx`, `EditGroupModal.tsx` and `utils/sort.ts` came from. I learned not to trust "it mirrors the original" without clicking through it myself.
-- **Commit:** [`5b3fca7`](https://github.com/DaneyMeister/apsi/commit/5b3fca75c0f0ee74bbd6e341724b344b822cc063)
+- **Commit:** [`5b3fca7`](https://github.com/DaneyMeister/flippyfloppy/commit/5b3fca75c0f0ee74bbd6e341724b344b822cc063)
 
 ### 3. Its own UI failed accessibility checks
 - **What it gave me:** Green "net profit" text in `emerald-600`, and clickable Inventory and Group Detail rows built as a `<div>`/`<tr>` with only an `onClick`.
 - **What was wrong:** `emerald-600` on white is 3.8:1, below the 4.5:1 minimum for small text. The rows had no `tabIndex`, `role` or key handler, so someone using a keyboard could not open the edit sheet at all.
 - **What I did instead:** These came up during the design-system accessibility check (entry 6). I had them fixed with `emerald-700` and proper keyboard support on the rows, then tested with Tab and Enter.
-- **Commit:** [`5b3fca7`](https://github.com/DaneyMeister/apsi/commit/5b3fca75c0f0ee74bbd6e341724b344b822cc063)
+- **Commit:** [`5b3fca7`](https://github.com/DaneyMeister/flippyfloppy/commit/5b3fca75c0f0ee74bbd6e341724b344b822cc063)
 
 ### 4. It tried to run an interactive command it couldn't finish
 - **What it gave me:** During Postgres setup it ran `psql -U postgres -c "CREATE USER ..."` itself.
 - **What was wrong:** That command waits for the `postgres` password, which the AI's terminal cannot type, so the command hung until it was stopped.
 - **What I did instead:** I ran the `CREATE USER` and `CREATE DATABASE` commands myself in my own terminal and entered the password there.
-- **Commit:** no code change; the database it set up is what `server/.env` and `npm run migrate` use in [`5b3fca7`](https://github.com/DaneyMeister/apsi/commit/5b3fca75c0f0ee74bbd6e341724b344b822cc063)
+- **Commit:** no code change; the database it set up is what `server/.env` and `npm run migrate` use in [`5b3fca7`](https://github.com/DaneyMeister/flippyfloppy/commit/5b3fca75c0f0ee74bbd6e341724b344b822cc063)
 
 ### 5. The README draft described an endpoint wrongly
 - **What it gave me:** The first README draft said `GET /api/groups/:id` returns a group "with its items and expenses".
 - **What was wrong:** `getGroupById` in `server/src/services/groupsService.ts` only collects `group_expenses` with `json_agg`; it does not return items. The documentation guide says the usage docs must match the code.
 - **What I did instead:** The SQL in the service was checked and the row corrected to "One group with its expenses".
-- **Commit:** [`3cdeaa7`](https://github.com/DaneyMeister/apsi/commit/3cdeaa771ba47663a414683b49520749d96855f1)
+- **Commit:** [`3cdeaa7`](https://github.com/DaneyMeister/flippyfloppy/commit/3cdeaa771ba47663a414683b49520749d96855f1)
 
 ### 6. It overwrote my professor's templates in `docs/`
 - **What it gave me:** While it was adding the missing files, I copied my professor's templates into `docs/`. It then wrote its own `01-proposal.md`, `02-mockup.md` and `03-design-system.md` straight over them, without checking what was already there.
 - **What was wrong:** Those templates were not committed yet, so they were lost. Its versions held my content but not necessarily the template's questions and headings. It noticed from the file timestamps, stopped, and told me.
 - **What I did instead:** _TODO: e.g. re-copied the templates from the class repo and had the content fitted to them._
-- **Commit:** [`3cdeaa7`](https://github.com/DaneyMeister/apsi/commit/3cdeaa771ba47663a414683b49520749d96855f1)
+- **Commit:** [`3cdeaa7`](https://github.com/DaneyMeister/flippyfloppy/commit/3cdeaa771ba47663a414683b49520749d96855f1)
 
 ### 7. Its first demo build shipped the fake data in the real app
 - **What it gave me:** The first version of demo mode checked a `DEMO_MODE` constant before loading the fake API.
 - **What was wrong:** Vite couldn't tell at build time that the branch was dead, so the fake API and its sample data were still bundled into the normal production build. They were never used there, but they shouldn't ship at all. Its own build check (`grep` for "Demo Buyer" in `dist/`) caught this.
 - **What was done instead:** The check was changed to `import.meta.env.VITE_DEMO_MODE === 'true'` written out in full, which Vite replaces at build time and removes. The normal build was then confirmed to contain no demo code.
-- **Commit:** [`3cdeaa7`](https://github.com/DaneyMeister/apsi/commit/3cdeaa771ba47663a414683b49520749d96855f1)
+- **Commit:** [`3cdeaa7`](https://github.com/DaneyMeister/flippyfloppy/commit/3cdeaa771ba47663a414683b49520749d96855f1)
 
 ### 8. Its first dummy dataset made my business look like it was losing money
 - **What it gave me:** 22 groups / 147 items / 35 expenses of invented data, where every part's assigned cost was close to its resale price. The Dashboard showed a **₱54,620 net loss**.
 - **What was wrong:** That isn't how flipping works. You buy a whole PC or bundle below market and part it out, so each part's share of the purchase is well under what it sells for. My real data made +₱27,110, so a demo showing a loss would misrepresent the app.
 - **What I did instead:** I told it the data looked like I was losing a lot of money. It repriced each part at 50–68% of its resale value, and the Dashboard now shows +₱41,630. Only the newest, still-selling batches and the defective/collection groups are in the red, which is realistic.
-- **Commit:** [`3cdeaa7`](https://github.com/DaneyMeister/apsi/commit/3cdeaa771ba47663a414683b49520749d96855f1)
+- **Commit:** [`3cdeaa7`](https://github.com/DaneyMeister/flippyfloppy/commit/3cdeaa771ba47663a414683b49520749d96855f1)
 
 ### 9. It made the demo accept any username and password
 - **What it gave me:** The server-less (GitHub Pages) build logged in with **any** username and password, showed a "Type any username and password to sign in" hint, and put a yellow "Demo mode" banner on every page.
 - **What was wrong:** My app has always had exactly one account, and I want the data treated as real, not labelled as a demo. When I saw the hint on my own login screen, I thought my real login had been changed. (It hadn't: my terminal was still in demo mode.)
 - **What I did instead:** I had the banner and the hint removed. The server-less build now checks one username plus a SHA-256 of the password, taken from GitHub Actions secrets, like the real app's single account.
-- **Commit:** [`3cdeaa7`](https://github.com/DaneyMeister/apsi/commit/3cdeaa771ba47663a414683b49520749d96855f1)
+- **Commit:** [`3cdeaa7`](https://github.com/DaneyMeister/flippyfloppy/commit/3cdeaa771ba47663a414683b49520749d96855f1)
 
 ### 10. Its own code moved purchase dates back a day every time I saved
 - **What it gave me:** In August it wrote the database pool with `pg`'s default settings, and the Edit Item / Edit Group forms filled their date boxes with `value.slice(0, 10)`.
 - **What was wrong:** `pg` turns a DATE column into a JavaScript Date at local midnight. In UTC+8 that is 16:00 UTC the day before, so `2026-09-12` reached the browser as `2026-09-11T16:00Z`. The form showed Sep 11, and saving (even without touching the date) stored Sep 11. Every save moved the date back another day. It also pre-filled "today" with the UTC date, which is yesterday before 8 AM in the Philippines. Its own test found it in week 2, but only after that test had shifted three of my records; it put them back.
 - **What was done instead:** `server/src/db/pool.ts` now returns DATE columns as plain `YYYY-MM-DD` text, and `client/src/utils/format.ts` has `toDateInput` / `todayDateInput`, which use the local calendar day. Saving each form three times now keeps every date the same.
-- **Commit:** [`3cdeaa7`](https://github.com/DaneyMeister/apsi/commit/3cdeaa771ba47663a414683b49520749d96855f1)
+- **Commit:** [`3cdeaa7`](https://github.com/DaneyMeister/flippyfloppy/commit/3cdeaa771ba47663a414683b49520749d96855f1)
 
 ### 11. Its tablet layout for Inventory didn't change anything on my screen
 - **What it gave me:** I asked for the Inventory table to become two columns of cards on tablet. It switched cards to the table at 1024 px wide (Tailwind's `lg`) and said the change was done.
 - **What was wrong:** My window was wider than 1024 px, so I still saw the same cramped table. The table has a minimum width of 820 px, and with the 256 px sidebar it needs about 1,120 px, so it was always squeezed below 1280 px. It picked the breakpoint without checking how much room the table actually needs.
 - **What I did instead:** I sent a second screenshot saying it didn't change. The switch was moved to 1280 px (`xl`), so cards show up to laptop width and the table only where it fits. I checked it again in the browser.
-- **Commit:** [`2101093`](https://github.com/DaneyMeister/apsi/commit/210109391179b1724363fa8c73011a55179fe0fd)
+- **Commit:** [`2101093`](https://github.com/DaneyMeister/flippyfloppy/commit/210109391179b1724363fa8c73011a55179fe0fd)
 
 ---
 
@@ -269,5 +269,5 @@ real business data, and caught the problems listed in section 2.
 ### The AI-written piece I understand best
 
 #### _TODO: pick one, e.g. `createBatch` in `server/src/services/itemsService.ts`_
-- **Commit:** [`5b3fca7`](https://github.com/DaneyMeister/apsi/commit/5b3fca75c0f0ee74bbd6e341724b344b822cc063)
+- **Commit:** [`5b3fca7`](https://github.com/DaneyMeister/flippyfloppy/commit/5b3fca75c0f0ee74bbd6e341724b344b822cc063)
 - **What it does and why we kept it:** _TODO: in my own words_
