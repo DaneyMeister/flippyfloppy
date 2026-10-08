@@ -81,6 +81,11 @@ export function LoginPage() {
         <button type="submit" disabled={submitting} className={`mt-7 w-full ${buttonClass}`}>
           {submitting ? 'Signing in…' : 'Sign in'}
         </button>
+
+        <p className="mt-6 text-center text-xs leading-relaxed text-slate-500">
+          Private records for one seller. The app stores buyer names, seller names and sale details
+          only to track inventory and profit. Nothing is shared or sold.
+        </p>
       </form>
     </div>
   );

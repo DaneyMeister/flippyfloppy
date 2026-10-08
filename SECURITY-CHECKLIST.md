@@ -43,7 +43,7 @@ The project has one workflow, `.github/workflows/deploy-pages.yml`. It builds th
 | --- | --- | --- | --- |
 | 18 | The app has an access layer: Cloudflare Zero Trust, an app-level password, or a real login | Yes | Real login: `POST /api/auth/login` checks the password with bcrypt and returns a JWT that expires after 7 days; the client sends it as a Bearer token |
 | 19 | If Supabase or Firebase: Row Level Security or security rules are on, and I tested it signed out | N/A | The final project uses my own Express + Postgres, not Supabase. My **old** Supabase project is a different story; see the findings at the bottom |
-| 20 | If Zero Trust: tjakoen.s@gmail.com is on the access policy. If an app password: the credentials are in my private workspace `project/README.md` | No | The app uses a login, but I have not yet put the grader's username and password in my private workspace README. To do before submitting |
+| 20 | If Zero Trust: tjakoen.s@gmail.com is on the access policy. If an app password: the credentials are in my private workspace `project/README.md` | Yes | The grader's username, password and the GitHub Pages URL are in my private workspace README. It's a separate login just for grading: the Pages build only holds invented data, and I'll change the password (and the `DEMO_PASSWORD_SHA256` secret) before using the app for my own records |
 | 21 | The gate covers every route, including the ones that only change data | Yes | `server/src/index.ts` puts `requireAuth` on `/api/groups`, `/api/items`, `/api/expenses` and `/api/analytics`, which covers every GET, POST, PATCH and DELETE. Only `/health` and `/api/auth/login` are public |
 | 22 | The credentials for the gate are environment variables, not in source | Yes | `AUTH_USERNAME`, `AUTH_PASSWORD_HASH` (a bcrypt hash, not the password) and `JWT_SECRET` come from `server/.env` |
 
@@ -84,8 +84,10 @@ routes didn't validate values.
 - **The screenshots:** the six in `docs/screenshots/` showed real customers' full names. I retook them from the sample data.
 - **The commit email:** my first commit's author changed from my Gmail to my GitHub no-reply address (row 27).
 
+**Week 4 (fixed):** re-running `npm audit` before deploying found two new advisories: `proxy-addr` (critical: IP spoofing, which matters once `TRUST_PROXY` is on) in the server, and `source-map-js` (high, build tools only) in the client. `npm audit fix` updated both lockfiles, and both are back to **0 vulnerabilities**.
+
+**Decided (week 4): the old Supabase project.** I'm leaving it as it is, as an accepted risk. Its URL and anon key are only in my Flutter app's source, which is a private local project that has never been pushed or published, and I haven't shared any app build. This repository contains neither (checked with `git grep` and `git log -p`). If the Flutter code or a build is ever shared, I'll turn on RLS or delete the tables first.
+
 **Still to do before going public:**
-- turn on RLS in (or pause) the old Supabase project
-- put the grader's login in my private README (row 20)
 - turn on secret scanning and push protection (row 12)
 - check the first workflow run's log (row 9)

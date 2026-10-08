@@ -27,10 +27,16 @@ export function MonthlySummaryPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const [year, month] = monthValue.split('-').map(Number);
+  // Reset loading/error when the month is picked, not inside the effect.
+  function changeMonth(value: string) {
+    if (value === monthValue) return;
+    setMonthValue(value);
     setLoading(true);
     setError(null);
+  }
+
+  useEffect(() => {
+    const [year, month] = monthValue.split('-').map(Number);
     api
       .get<MonthlyReport>(`/api/analytics/monthly?year=${year}&month=${month}`)
       .then(setReport)
@@ -42,7 +48,7 @@ export function MonthlySummaryPage() {
     <div className="space-y-6">
       <label className="block max-w-xs">
         <span className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">Month</span>
-        <MonthPicker value={monthValue} onChange={setMonthValue} />
+        <MonthPicker value={monthValue} onChange={changeMonth} />
       </label>
 
       {loading && <MonthlySummarySkeleton />}

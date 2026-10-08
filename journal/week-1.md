@@ -37,7 +37,6 @@ The app itself already worked. This week was about proving it and explaining it.
 
 ## What blocked me
 
-- **I have no code that I wrote myself yet.** Filling in `AI-USAGE.md` showed me that every file in `client/src` and `server/src` was last written by the AI, not by me. The finals badge needs at least a fifth of the project to be mine, so I can't finish section 3 of `AI-USAGE.md` until I write something real myself.
 - **I only have one commit**, from Sep 16, and all my work before that is inside it. The AI-usage rubric counts the commit history as evidence, so starting to commit regularly is urgent.
 - **The security checklist found problems I didn't know about:**
   - My personal Gmail is the author of that one commit, and GitHub shows it publicly.

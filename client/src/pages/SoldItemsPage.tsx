@@ -5,7 +5,7 @@ import { formatDate, formatPhp } from '../utils/format';
 import { cardClass, cardSurfaceClass } from '../components/FormField';
 import type { InventoryItemRow } from '../types';
 import { SoldItemsSkeleton, saleRowClass } from '../components/Skeletons';
-import { useConfirm } from '../components/ConfirmDialog';
+import { useConfirm } from '../components/useConfirm';
 
 interface SaleGroup {
   key: string;

@@ -14,7 +14,7 @@ import {
 } from '../types';
 import { formatPhp, parseMoney, toDateInput } from '../utils/format';
 import { buttonClass, inputClass, secondaryButtonClass } from './FormField';
-import { useConfirm } from './ConfirmDialog';
+import { useConfirm } from './useConfirm';
 import { DatePicker } from './DatePicker';
 
 export function EditGroupModal({ groupId, onClose }: { groupId: string; onClose: () => void }) {

@@ -48,7 +48,7 @@ The rotation is the fix; the cleanup is hygiene.
       query**, as `AND user_id = $2`, not as an `if` above it
       ↳ **N/A:** a single-user app. There's one account and no `user_id`, and every data route requires that account's token (`requireAuth`)
 - [x] `npm audit` run once, and the easy fixes taken
-      ↳ Ran `npm audit fix` in `server/` (Express 4.22.3, for a `qs` advisory): **0 vulnerabilities** in `server/` and `client/`
+      ↳ Ran `npm audit fix` in `server/` (Express 4.22.3, for a `qs` advisory): **0 vulnerabilities** in `server/` and `client/`. Re-run on Oct 9, 2026, before deploying: two new advisories had appeared (`proxy-addr`, critical, in the server; `source-map-js`, high, in the client build tools). `npm audit fix` updated both lockfiles, and both are back to **0**
 
 ```bash
 npm install helmet
@@ -72,8 +72,8 @@ The half that matters more, because it is about other people.
 - [x] If real people tested your app, even three friends, their data is deleted
       before you submit
       ↳ Only I have used it. My local database now holds only the invented data
-- [ ] If your app collects anything about anyone, the app says what it collects
-      ↳ **Not yet.** The app stores buyer names (and sellers) for my own records, but nothing says so. To do: a short privacy note on the login screen and in the README
+- [x] If your app collects anything about anyone, the app says what it collects
+      ↳ The login screen has a short note (buyer names, seller names and sale details, kept only to track inventory and profit), and the README has a Privacy section with the full list
 - [x] Any face in a screenshot is stock, generated, or yours
       ↳ **N/A:** no faces in any screenshot. The logo is generated
 

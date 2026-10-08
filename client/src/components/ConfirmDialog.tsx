@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { secondaryButtonClass } from './FormField';
 
@@ -14,7 +14,7 @@ export interface ConfirmOptions {
  * browser's confirm(). Focus starts on the safe (cancel) button; Escape or a
  * click outside cancels.
  */
-function ConfirmDialog({ title, message, confirmLabel, cancelLabel, onClose }: ConfirmOptions & { onClose: (ok: boolean) => void }) {
+export function ConfirmDialog({ title, message, confirmLabel, cancelLabel, onClose }: ConfirmOptions & { onClose: (ok: boolean) => void }) {
   const titleId = useId();
   const messageId = useId();
   const cancelRef = useRef<HTMLButtonElement>(null);
@@ -76,28 +76,4 @@ function ConfirmDialog({ title, message, confirmLabel, cancelLabel, onClose }: C
     </div>,
     document.body
   );
-}
-
-/**
- * Promise-based replacement for window.confirm(). Render `dialog` somewhere
- * in the component, then `if (!(await confirm({...}))) return;`.
- */
-export function useConfirm() {
-  const [request, setRequest] = useState<(ConfirmOptions & { resolve: (ok: boolean) => void }) | null>(null);
-
-  const confirm = useCallback(
-    (options: ConfirmOptions) => new Promise<boolean>((resolve) => setRequest({ ...options, resolve })),
-    []
-  );
-
-  const handleClose = useCallback(
-    (ok: boolean) => {
-      request?.resolve(ok);
-      setRequest(null);
-    },
-    [request]
-  );
-
-  const dialog = request ? <ConfirmDialog {...request} onClose={handleClose} /> : null;
-  return [confirm, dialog] as const;
 }

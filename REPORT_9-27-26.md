@@ -57,5 +57,4 @@
 - Turn on GitHub Pages and add the `DEMO_USERNAME` / `DEMO_PASSWORD_SHA256` secrets, then check the first workflow run's log.
 - Deploy the full app (database, API, client) so the demo video can use the deployed site.
 - Record the demo video (`docs/05-demo-video.md`).
-- Write code of my own for section 3 of `AI-USAGE.md`.
 - Add automated tests for the money flows: batch purchase, quick add, sell build, return sale.

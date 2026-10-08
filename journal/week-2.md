@@ -33,7 +33,7 @@ On top of that, I wanted to close the security gaps my week 1 checklist had mark
 - **A bug I didn't know I had.** Saving an edit to a group moved its purchase date one day earlier, every time, even when I didn't touch the date. It had been in the app since August. It only showed up because a test re-saved some records with their own values and three dates changed. I had to find where the day was being lost (the database driver and my timezone) and then put those three records back.
 - **I thought my login was broken.** My login screen suddenly said "type any username and password". It turned out my PowerShell window still had demo mode switched on from testing earlier, so I was running the GitHub Pages version of the app. My real login had never changed.
 - **The screenshots.** My six README screenshots showed real customers' full names, so I had to retake all of them from the new data before I could commit.
-- **The commit email.** Before committing, I had to rewrite my first commit so it shows my GitHub no-reply address instead of my personal Gmail. That changed its hash, so every link to it in `AI-USAGE.md` had to be updated. Supabase RLS and code of my own for `AI-USAGE.md` are still open.
+- **The commit email.** Before committing, I had to rewrite my first commit so it shows my GitHub no-reply address instead of my personal Gmail. That changed its hash, so every link to it in `AI-USAGE.md` had to be updated.
 - **Things I can't test on my laptop:** the Docker files, and the GitHub Pages workflow, which has never run.
 
 ## What I learned

@@ -22,26 +22,29 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // State is only set in the fetch's callbacks, so the first load can run
+  // from an effect without a synchronous setState.
+  const load = useCallback(
+    () =>
+      Promise.all([api.get<ItemGroupRow[]>('/api/groups'), api.get<InventoryItemRow[]>('/api/items')])
+        .then(([groupsData, itemsData]) => {
+          setGroups(groupsData);
+          setItems(itemsData);
+        })
+        .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load inventory'))
+        .finally(() => setLoading(false)),
+    []
+  );
+
   const refresh = useCallback(async () => {
     setLoading(true);
     setError(null);
-    try {
-      const [groupsData, itemsData] = await Promise.all([
-        api.get<ItemGroupRow[]>('/api/groups'),
-        api.get<InventoryItemRow[]>('/api/items'),
-      ]);
-      setGroups(groupsData);
-      setItems(itemsData);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load inventory');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    await load();
+  }, [load]);
 
   useEffect(() => {
-    refresh();
-  }, [refresh]);
+    load();
+  }, [load]);
 
   const groupById = useCallback((id: string | null | undefined) => groups.find((g) => g.id === id), [groups]);
 

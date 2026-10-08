@@ -161,11 +161,11 @@ function AccountMenu() {
 
 export function Layout() {
   const location = useLocation();
-  const [drawerOpen, setDrawerOpen] = useState(false);
-
-  useEffect(() => {
-    setDrawerOpen(false);
-  }, [location.pathname]);
+  // The drawer remembers the page it was opened on, so it closes by itself
+  // when the route changes (including the browser's back button).
+  const [drawerPath, setDrawerPath] = useState<string | null>(null);
+  const drawerOpen = drawerPath === location.pathname;
+  const setDrawerOpen = (open: boolean) => setDrawerPath(open ? location.pathname : null);
 
   const currentLabel = NAV_ITEMS.find((item) => (item.to === '/' ? location.pathname === '/' : location.pathname.startsWith(item.to)))?.label ?? 'FlippyFloppy';
 

@@ -4,6 +4,10 @@
 > not decided fresh. The accessibility check was run against the actual code, and it found two
 > real problems, both fixed on 2026-09-03.
 
+![FlippyFloppy design system: brand colour scale with hex codes, light and dark theme tokens, profit and loss colours, type scale, spacing and corner radius, breakpoints, and the reusable components](design-system.png)
+
+*The design system as a picture, made on 2026-10-09 from the current `client/src/index.css` and components. It shows the week 3 versions (profit card, stat tiles, confirm window) and the lighter font weights. The tables below are the Sep 1 write-up.*
+
 ## A. Styling approach
 
 **Tailwind CSS v4.** The tokens live in an `@theme` block inside `index.css`, not in

@@ -9,7 +9,7 @@ import { ITEM_STATUSES, type InventoryItemRow, type ItemStatus } from '../types'
 import { cardClass, dangerTextButtonClass, inputClass, cardSurfaceClass } from '../components/FormField';
 import { compareByName, compareByPriority, compareBySaleDateDesc } from '../utils/sort';
 import { InventorySkeleton } from '../components/Skeletons';
-import { useConfirm } from '../components/ConfirmDialog';
+import { useConfirm } from '../components/useConfirm';
 
 export function InventoryPage() {
   const { items, groups, loading, error, refresh, groupById, groupNameForItem } = useInventory();

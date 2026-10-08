@@ -12,6 +12,12 @@ import { requireAuth } from './middleware/auth';
 
 const app = express();
 
+// Behind a hosting proxy (Render, Railway, ...) set TRUST_PROXY=1, so the login
+// rate limit sees each visitor's real address instead of the proxy's. Leave it
+// unset locally: trusting X-Forwarded-For without a proxy lets anyone fake it.
+const trustProxy = Number(process.env.TRUST_PROXY);
+if (trustProxy > 0) app.set('trust proxy', trustProxy);
+
 // Security headers (no sniffing, no framing, strict referrer, hides "X-Powered-By: Express", ...).
 app.use(helmet());
 app.use(cors({ origin: process.env.CLIENT_ORIGIN ?? 'http://localhost:5173' }));

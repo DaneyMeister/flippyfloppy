@@ -8,6 +8,18 @@ import 'dotenv/config';
 const DATE_OID = 1082;
 types.setTypeParser(DATE_OID, (value) => value);
 
+// Hosted Postgres (Render, Supabase, Neon, ...) usually requires SSL; set
+// DATABASE_SSL=true there. Their certificates often don't chain to a public
+// root, so the connection is encrypted without verifying the certificate.
+// Leave it unset for a local database, which doesn't use SSL.
 export const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
+  ssl: process.env.DATABASE_SSL === 'true' ? { rejectUnauthorized: false } : undefined,
+});
+
+// Hosted databases close idle connections. Without a listener, the error that
+// raises on an idle client crashes the whole process; log it instead; the pool
+// replaces the client on the next query.
+pool.on('error', (err) => {
+  console.error('Idle database client error:', err.message);
 });
