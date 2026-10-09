@@ -1,6 +1,6 @@
 # Weekly Increment Report
 
-## Week of: September 28 – October 4, 2026
+## Week of: September 28 – October 9, 2026
 
 ## What changed this week
 

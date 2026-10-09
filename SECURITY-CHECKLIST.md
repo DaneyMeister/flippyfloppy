@@ -22,10 +22,10 @@ The project has one workflow, `.github/workflows/deploy-pages.yml`. It builds th
 | --- | --- | --- | --- |
 | 7 | No secret value is written literally in any workflow YAML file | Yes | `deploy-pages.yml` has no values in it: the only credentials are `${{ secrets.DEMO_USERNAME }}` and `${{ secrets.DEMO_PASSWORD_SHA256 }}` |
 | 8 | Secrets are stored in repository Actions secrets and read with `${{ secrets.NAME }}` | Yes | Both are read with `${{ secrets.NAME }}` in the "Build demo" step. I still have to add them in Settings → Secrets and variables → Actions before the first run |
-| 9 | No workflow step echoes, dumps or debug-prints a secret, and I opened a recent run's log to confirm | N/A | No step prints anything from `env` (the steps are `npm ci`, `npm run build`, `cp`, and the official Pages actions), but the workflow has never run, so there's no log to open yet. I'll check the first run's log |
+| 9 | No workflow step echoes, dumps or debug-prints a secret, and I opened a recent run's log to confirm | Yes | No step prints anything from `env` (the steps are `npm ci`, `npm run build`, `cp`, and the official Pages actions). On Oct 9, 2026 I opened the run log in the Actions tab: every step passed and no secret is printed. Runs #4 and #5 (today's pushes) also succeeded, and the published site holds only the SHA-256 of the demo password, never the password itself |
 | 10 | Uploaded build artifacts contain no `.env`, key file or generated config | Yes | The artifact is only `client/dist` (HTML, JS, CSS, images). No `.env` or key file. On purpose, the JS contains the server-less build's username and the **SHA-256 of its password**, since that build has no server; that password isn't used anywhere else |
 | 11 | Third-party actions are pinned to a commit SHA, not a moveable tag | Yes | All five actions (`checkout`, `setup-node`, `configure-pages`, `upload-pages-artifact`, `deploy-pages`) use a full 40-character SHA, with the version tag in a comment |
-| 12 | Secret scanning and push protection are enabled on the repository | No | Not turned on yet. I'll enable both in Settings → Code security before making the repository public |
+| 12 | Secret scanning and push protection are enabled on the repository | Yes | Turned on Oct 9, 2026, in Settings → Advanced Security after making the repository public: Secret Protection and Push protection are both enabled |
 
 ## Database
 
@@ -88,6 +88,4 @@ routes didn't validate values.
 
 **Decided (week 4): the old Supabase project.** I'm leaving it as it is, as an accepted risk. Its URL and anon key are only in my Flutter app's source, which is a private local project that has never been pushed or published, and I haven't shared any app build. This repository contains neither (checked with `git grep` and `git log -p`). If the Flutter code or a build is ever shared, I'll turn on RLS or delete the tables first.
 
-**Still to do before going public:**
-- turn on secret scanning and push protection (row 12)
-- check the first workflow run's log (row 9)
+**Still to do before going public:** nothing. Everything above is done or decided (Oct 9, 2026).
