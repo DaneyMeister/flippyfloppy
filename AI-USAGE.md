@@ -200,7 +200,7 @@ against my real business data, and caught the problems listed in section 2.
 - **What I kept / changed / why:**
   - I took all 30 screenshots myself. It checked the totals in them and found they didn't match the README, because of two purchases I had added while testing. I kept the screenshots and asked for the README to explain the difference, instead of changing the seed numbers, since a fresh `npm run seed` still gives the original totals.
   - I filled in the hours in the weekly reports myself. It compared them with my session logs, and I raised the week 2 number, which had been lower than the time the logs already showed.
-- **Commit:** _not committed yet_
+- **Commit:** [`3d2816a`](https://github.com/DaneyMeister/flippyfloppy/commit/3d2816aa90800b6eed56f12f524d748948fc2e50)
 
 ---
 

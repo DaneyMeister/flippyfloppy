@@ -4,6 +4,10 @@
 
 A PC-flipping inventory and profit tracker, migrated from the original Flutter + Supabase app into a full-stack web app.
 
+**Live demo:** https://daneymeister.github.io/flippyfloppy/ (server-less build with sample data; the login is shared with the grader separately)
+
+**Demo video:** [watch on Google Drive](https://drive.google.com/file/d/1atmu6ZtHRsydfHFN4Duwi4CJVNxt2SwM/view?usp=sharing): a walkthrough of the app and its code.
+
 > **Flippy** — buy, flip, sell. **Floppy** — a floppy disk: the most recognizable piece of obsolete PC hardware there is, and a thing whose one job was holding onto data that mattered. This app is that, for a PC flipper's business — the record of every purchase, sale, and profit that would otherwise get lost.
 
 ## 1. Overview
@@ -71,10 +75,12 @@ cp client/.env.example client/.env
 | --- | --- | --- |
 | `PORT` | `4000` | Port the API listens on |
 | `DATABASE_URL` | `postgres://flippyfloppy:flippyfloppy@localhost:5432/flippyfloppy` | Postgres connection string |
+| `DATABASE_SSL` | *(empty)* | Leave empty locally. Set to `true` for a hosted database that requires SSL (Render, Supabase, Neon) |
 | `JWT_SECRET` | `change-this-to-a-long-random-string` | Secret used to sign login tokens. Use a long random value |
 | `AUTH_USERNAME` | `admin` | The one username allowed to log in |
 | `AUTH_PASSWORD_HASH` | `$2a$10$...` | bcrypt hash of the login password (see below) |
 | `CLIENT_ORIGIN` | `http://localhost:5173` | Origin allowed by CORS; must match where the client runs |
+| `TRUST_PROXY` | *(empty)* | Leave empty locally. Set to `1` when the API is hosted behind a proxy (e.g. Render), so the login rate limit sees each visitor's real address |
 
 To generate `AUTH_PASSWORD_HASH`, run this inside `server/` after `npm install`, replacing `yourPassword`:
 
@@ -253,8 +259,12 @@ Every endpoint except `/health` and `/api/auth/login` requires an `Authorization
   - the PATCH routes reject fields they don't know
 - **SQL:** every query uses `$1` placeholders. The only dynamic SQL is the list of columns to update, which comes from a fixed allowlist.
 - **Headers:** `helmet` sets standard security headers and hides `X-Powered-By`. CORS allows only `CLIENT_ORIGIN`.
-- **Dependencies:** `npm audit` reports 0 vulnerabilities in both `server/` and `client/`.
+- **Dependencies:** `npm audit` reports 0 vulnerabilities in both `server/` and `client/` (last run Oct 9, 2026).
 - The full checklist is in [`SECURITY-CHECKLIST.md`](SECURITY-CHECKLIST.md) and [`docs/06-security-and-privacy.md`](docs/06-security-and-privacy.md).
+
+### Privacy
+
+The app stores, for the owner's own records only: buyer names, seller names, sale dates, prices and listing links. It doesn't collect anything about visitors, has no analytics or tracking, and shares nothing with anyone. The login screen says this too. The sample data in this repository is invented, and the owner's real records never leave their own database.
 
 ### Data model
 
@@ -311,38 +321,66 @@ final_project/
 
 ## 6. Screenshots
 
-> These are being retaken from the sample data (`npm run seed`) before the repository is made public.
+All screenshots use the sample data from `npm run seed`, plus two purchases added while testing Acquisition: a Batch Purchase ("PC Set 7", 3 items) and one Quick Add item in Bought Components. That is why they show 23 groups, ₱268,670 in expenses, +₱28,130 net profit and 43 items for sale, instead of the 22 groups, ₱255,170, +₱41,630 and 39 items a fresh seed gives. Revenue (₱296,800) is the same, because neither purchase has been sold. Dark mode is the default; the last row shows light mode.
+
+### Desktop
 
 | Login | Dashboard |
 | --- | --- |
 | ![Login](docs/screenshots/login.png) | ![Dashboard](docs/screenshots/dashboard.png) |
 
-| Inventory | Acquisition |
+| Inventory | Sold Items |
 | --- | --- |
-| ![Inventory](docs/screenshots/inventory.png) | ![Acquisition](docs/screenshots/acquisition.png) |
+| ![Inventory](docs/screenshots/inventory.png) | ![Sold Items](docs/screenshots/sold-items.png) |
+
+| Acquisition: Batch Purchase | Acquisition: Quick Add |
+| --- | --- |
+| ![Acquisition, Batch Purchase](docs/screenshots/acquisition_batch-purchase.png) | ![Acquisition, Quick Add](docs/screenshots/acquisition_quick-add.png) |
 
 | Sell Build | Monthly Summary |
 | --- | --- |
 | ![Sell Build](docs/screenshots/sell-build.png) | ![Monthly Summary](docs/screenshots/monthly-summary.png) |
 
+| Price Index | Light mode |
+| --- | --- |
+| ![Price Index](docs/screenshots/price-index.png) | ![Dashboard in light mode](docs/screenshots/light-mode.png) |
+
+### Tablet and phone
+
+On smaller screens the sidebar becomes a menu button, and the tables turn into cards.
+
+| Screen | Tablet | Phone |
+| --- | --- | --- |
+| Login | <img src="docs/screenshots/login_tablet.png" alt="Login on tablet" width="360"> | <img src="docs/screenshots/login_phone.png" alt="Login on phone" width="180"> |
+| Dashboard | <img src="docs/screenshots/dashboard_tablet.png" alt="Dashboard on tablet" width="360"> | <img src="docs/screenshots/dashboard_phone.png" alt="Dashboard on phone" width="180"> |
+| Inventory | <img src="docs/screenshots/inventory_tablet.png" alt="Inventory on tablet" width="360"> | <img src="docs/screenshots/inventory_phone.png" alt="Inventory on phone" width="180"> |
+| Acquisition: Batch Purchase | <img src="docs/screenshots/acquisition_batch-purchase_tablet.png" alt="Batch Purchase on tablet" width="360"> | <img src="docs/screenshots/acquisition_batch-purchase_phone.png" alt="Batch Purchase on phone" width="180"> |
+| Acquisition: Quick Add | <img src="docs/screenshots/acquisition_quick-add_tablet.png" alt="Quick Add on tablet" width="360"> | <img src="docs/screenshots/acquisition_quick-add_phone.png" alt="Quick Add on phone" width="180"> |
+| Sell Build | <img src="docs/screenshots/sell-build_tablet.png" alt="Sell Build on tablet" width="360"> | <img src="docs/screenshots/sell-build_phone.png" alt="Sell Build on phone" width="180"> |
+| Sold Items | <img src="docs/screenshots/sold-items_tablet.png" alt="Sold Items on tablet" width="360"> | <img src="docs/screenshots/sold-items_phone.png" alt="Sold Items on phone" width="180"> |
+| Monthly Summary | <img src="docs/screenshots/monthly-summary_tablet.png" alt="Monthly Summary on tablet" width="360"> | <img src="docs/screenshots/monthly-summary_phone.png" alt="Monthly Summary on phone" width="180"> |
+| Price Index | <img src="docs/screenshots/price-index_tablet.png" alt="Price Index on tablet" width="360"> | <img src="docs/screenshots/price-index_phone.png" alt="Price Index on phone" width="180"> |
+| Light mode | <img src="docs/screenshots/light-mode_tablet.png" alt="Dashboard in light mode on tablet" width="360"> | <img src="docs/screenshots/light-mode_phone.png" alt="Dashboard in light mode on phone" width="180"> |
+
 ## 7. Known issues and next steps
 
 **Fixed in week 2** (Sep 24–27): the async routes that could hang on a database error, the PATCH routes that didn't validate values, Price Index's phone layout, and a bug where **saving any edit moved a purchase date one day earlier**. See [`REPORT_9-27-26.md`](REPORT_9-27-26.md).
 
+**Live demo** (Oct 2026): the server-less build runs on GitHub Pages at **https://daneymeister.github.io/flippyfloppy/**, with the sample data built in and one login account. The login was tested there. The full app, with the Express API and PostgreSQL, runs locally (section 3) and isn't hosted yet.
+
 **Known issues**
 - **Docker files are untested.** `compose.yml` and `server/Dockerfile` were written on a machine without Docker.
-- **The GitHub Pages workflow has never run.** The repository hasn't been pushed since it was added.
 - **No automated tests.** Everything has been checked by hand, by typecheck/build/lint, and with scripts run against a test copy of the server.
-- **The login rate limit is kept in memory.** Restarting the server resets it. Behind a hosting proxy it also needs Express's `trust proxy` setting, or every visitor looks like the same address.
+- **The login rate limit is kept in memory.** Restarting the server resets it.
+- **The full app isn't hosted.** Only the server-less demo is online. Its changes are saved in the visitor's own browser, not in a shared database.
 - **The server-less build's password hash is public.** That build has no server, so the SHA-256 of its password ships inside the site's code. Use a password that isn't used anywhere else.
 - **Single user only.** The one login comes from env vars; there are no user accounts in the database.
 - **Token stored in `localStorage`.** It lasts 7 days and there is no way to revoke it early.
-- **Not deployed yet.** The full app only runs locally. The Pages workflow publishes only the server-less demo, and only once Pages is enabled.
 
 **Next steps**
-1. Deploy: a hosted Postgres database, the API, and the static client, with `CLIENT_ORIGIN`, `VITE_API_URL` and `trust proxy` set for production.
-2. Turn on GitHub Pages and add the `DEMO_USERNAME` / `DEMO_PASSWORD_SHA256` secrets, then check the first run.
-3. Add tests for the flows where costs and money change: batch purchase, quick add, sell build, return sale.
+1. Host the full app: a hosted Postgres database, the API and the static client. The code is ready for it: set `DATABASE_SSL=true`, `TRUST_PROXY=1`, `CLIENT_ORIGIN` and `VITE_API_URL` (section 2).
+2. Add tests for the flows where costs and money change: batch purchase, quick add, sell build, return sale.
+3. Keep the login rate limit in the database (or a store like Redis) so it survives restarts.
 4. Test the Docker setup on a machine that has Docker.
 
 ## AI usage
